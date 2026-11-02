@@ -109,7 +109,8 @@ async def main() -> None:
     settings = Settings(app_env="development", database_url=APP_DSN, worker_database_url=WORKER_DSN,
                         oms_mcp_url=MOCK, tms_mcp_url=MOCK, finance_mcp_url=MOCK,
                         llm_model="stub", llm_model_small="", llm_intent_small_model_enabled=False,
-                        rag_backend="pg")
+                        # 沿用环境配置：CI 无 embed 服务时用 memory 条款库，本地可用 pg。
+                        rag_backend=os.environ.get("RAG_BACKEND", "pg"))
     deps = build_deps(settings)
 
     # 用例 A（安全语义）：服饰质量问题 + 仅退款 —— 政策只授权“退货退款”，
