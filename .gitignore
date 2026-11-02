@@ -28,3 +28,5 @@ Thumbs.db
 
 # 本地临时调试脚本（不进版本库）
 tmp_*.py
+tmp_*.txt
+patch.tmp
