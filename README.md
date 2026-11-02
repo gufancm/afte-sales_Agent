@@ -11,10 +11,11 @@ LangGraph 工作流、Saga/Outbox + Worker、MCP 端口与 Mock、API/SSE、数�
 
 
 ![python](https://img.shields.io/badge/python-3.12-blue)
-![tests](https://img.shields.io/badge/tests-311%20passed-brightgreen)
+![tests](https://img.shields.io/badge/tests-314%20passed-brightgreen)
 ![docker](https://img.shields.io/badge/docker-compose-2496ED)
 ![observability](https://img.shields.io/badge/metrics-prometheus-orange)
 ![coverage](docs/coverage.svg)
+![ci](https://github.com/gufancm/aftersale-agent/actions/workflows/ci.yml/badge.svg)
 
 ## 架构总览
 
@@ -400,7 +401,7 @@ docker compose run --rm api python scripts/demo_ticket.py           # 建单->�
   `eval-offline`（E6/E9/E1/E28 离线评测，门槛不达标即失败）、
   `docker-build`（`docker compose build api worker migrate mcp-mock`）、
   `docker-e2e`（真实 Postgres + Worker + MCP Mock：`verify_db_saga.py` + HTTP 冒烟；LLM 关闭、RAG 走内存条款）。
-- **覆盖率**：`source = app`，当前 **75.0%（4752/6334 语句）**，门槛 70%；徽章 `docs/coverage.svg` 由
+- **覆盖率**：`source = app`，当前 **75.6%（4798/6346 语句）**，门槛 70%；徽章 `docs/coverage.svg` 由
   `scripts/coverage_badge.py` 从 `coverage.xml` 生成（零外部依赖、无需 Codecov）。薄弱模块均为只能端到端验证的
   `app/db/persistence.py`、`app/rag/pg.py`、`app/mcp/client.py`、`app/main.py`、`app/api/routes.py`（已由 `docker-e2e` 覆盖）。
 - Job 细节、本地复现命令、如何启用 CI 状态徽章：见 **`docs/ci.md`**。
@@ -439,8 +440,9 @@ docker compose run --rm api python scripts/demo_ticket.py           # 建单->�
 - 记忆系统已落地（2026-10-25）：短期跨轮（历史回放 + 滚动摘要 + 回复回写）、情景记忆（终态工单摘要 → BGE-M3 向量召回）、
   语义记忆（用户画像，非权威）；**程序性记忆明确不做**。记忆绝不进入政策/风控/金额/审批（有源码级回归测试守护）。
   迁移 `0020_memory.sql`；原理与实测见 `docs/memory-design.md`。
-- CI 与覆盖率已落地（2026-10-26）：GitHub Actions 三 Job（测试+覆盖率门槛 / 镜像构建 / DB 端到端 + HTTP 冒烟）；
-  覆盖率徽章零外部依赖自动生成。仓库尚未 `git init`，推送后即触发。详见 `docs/ci.md`。
+- CI 与覆盖率已落地（2026-10-26，2026-11-02 四 Job 全绿）：GitHub Actions 四 Job（测试+覆盖率门槛 / 离线评测 /
+  镜像构建 / DB 端到端 + HTTP 冒烟）；覆盖率徽章零外部依赖自动生成。
+  仓库已发布：`https://github.com/gufancm/aftersale-agent`，CI 见 Actions 页。详见 `docs/ci.md`。
 - 检索离线评测（recall@k/MRR/nDCG）与金标集：本轮明确暂缓，项目收尾统一测评。
 - HITL 检查点当前为进程内 `InMemorySaver` → API 单副本；多副本需 PostgresSaver/RedisSaver。
 - Outbox Relay 已落地（Worker `mark_outbox_published`）；评测金标集、SLO 校准、许可证见 LLD v3.5 第 14/17 章。
