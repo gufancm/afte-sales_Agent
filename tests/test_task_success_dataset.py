@@ -17,6 +17,16 @@ TARGET = {"仅退款": 20, "退货退款": 20, "在途拦截退款": 15, "补发
 REFUND = {"REQUEST_REFUND_ONLY", "REQUEST_RETURN_REFUND"}
 
 
+def _sha256_lf(path: Path) -> str:
+    """按 LF 归一化后的字节计算哈希。
+
+    冻结数据在 Windows 工作区是 CRLF，而 git blob 与 CI 检出是 LF；
+    若直接对 read_bytes() 取哈希，同一份数据在两种平台会得出不同指纹。
+    """
+    raw = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(raw).hexdigest()
+
+
 def _cases() -> list[dict]:
     text = (DATA / "task_success_v2.jsonl").read_text(encoding="utf-8")
     return [json.loads(line) for line in text.splitlines() if line.strip()]
@@ -79,10 +89,8 @@ def test_hitl_dataset_has_approve_and_reject() -> None:
 def test_manifest_hashes_and_review_ids_match() -> None:
     manifest = json.loads((DATA / "task_success_manifest.json").read_text(encoding="utf-8"))
     assert manifest["cases"] == 100
-    assert manifest["files"]["cases"]["sha256"] == hashlib.sha256(
-        (DATA / "task_success_v2.jsonl").read_bytes()).hexdigest()
-    assert manifest["files"]["fixtures"]["sha256"] == hashlib.sha256(
-        (DATA / "task_success_fixtures.json").read_bytes()).hexdigest()
+    assert manifest["files"]["cases"]["sha256"] == _sha256_lf(DATA / "task_success_v2.jsonl")
+    assert manifest["files"]["fixtures"]["sha256"] == _sha256_lf(DATA / "task_success_fixtures.json")
     ids = {c["case_id"] for c in _cases()}
     # 复核表可能以两种命名保留（英文 review 表 / 中文人工核对表），任一存在即可。
     candidates = [ROOT / "reports" / "task-success-review-v2.csv",

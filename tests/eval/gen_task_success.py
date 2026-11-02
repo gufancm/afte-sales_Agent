@@ -545,6 +545,13 @@ from collections import Counter
 cases_path = DATA / "task_success_v1.jsonl"
 fixtures_path = DATA / "task_success_fixtures.json"
 rules_path = ROOT / "policy" / "rules.json"
+
+
+def _sha256_lf(path: pathlib.Path) -> str:
+    """跨平台稳定指纹：Windows(CRLF) 与 CI(LF) 归一化后一致。"""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 manifest = {
     "dataset": "task_success_v1",
     "version": "1.0.0",
@@ -557,17 +564,17 @@ manifest = {
     "review_status": dict(Counter(c["review"] for c in CASES)),
     "files": {
         "cases": {"path": str(cases_path.relative_to(ROOT)).replace("\\", "/"),
-                  "sha256": hashlib.sha256(cases_path.read_bytes()).hexdigest()},
+                  "sha256": _sha256_lf(cases_path)},
         "fixtures": {"path": str(fixtures_path.relative_to(ROOT)).replace("\\", "/"),
-                     "sha256": hashlib.sha256(fixtures_path.read_bytes()).hexdigest()},
+                     "sha256": _sha256_lf(fixtures_path)},
         "review": {"path": "reports/task-success-review-v1.csv"},
     },
     "policy_rules": {"path": "policy/rules.json",
-                     "sha256": hashlib.sha256(rules_path.read_bytes()).hexdigest()},
+                     "sha256": _sha256_lf(rules_path)},
     "metric_note": "离线自检只验证数据自洽；Task Success 通过率需 live 端到端执行后填写",
 }
 (DATA / "task_success_manifest.json").write_text(
-    json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
 
 print("cases", len(CASES), dict(Counter(c["group"] for c in CASES)))
 print("turns", manifest["turns"], "multi-turn", manifest["multi_turn_cases"])

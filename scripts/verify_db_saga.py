@@ -39,10 +39,18 @@ MOCK = os.environ.get("MCP_MOCK_URL", "http://localhost:9100")
 
 
 class StubLLM:
+    """确定性 LLM 替身：由用例注入订单/原因/动作，避免真实模型参与链路验证。"""
+
+    def __init__(self, *, order_id: str, sku_id: str, reason_code: str) -> None:
+        self.order_id = order_id
+        self.sku_id = sku_id
+        self.reason_code = reason_code
+
     async def structured(self, *, messages, schema_model, prompt_version, temperature=0.0):
         if schema_model is IntentResult:
             return (IntentResult(intent=Intent.REFUND_ONLY, confidence=0.95,
-                                 slots=ExtractedSlots(order_id="o_1002", reason_code="DAMAGED", quantity=1),
+                                 slots=ExtractedSlots(order_id=self.order_id, reason_code=self.reason_code,
+                                                      quantity=1),
                                  slot_sources=SlotSources(order_id=SlotSource.USER_STATED, sku_id=None,
                                                           order_line_id=None, waybill_no=None,
                                                           reason_code=SlotSource.USER_STATED,
@@ -50,11 +58,45 @@ class StubLLM:
                                                           quantity=SlotSource.USER_STATED,
                                                           product_category=None)),
                     {"request_hash": "x", "response_hash": "y", "usage": {}})
-        return (ActionPlan(order_id="o_1002",
-                           actions=[ActionProposal(action=Action.REQUEST_REFUND_ONLY, order_id="o_1002",
-                                                   sku_ids=["sku_a1"], reason_code="DAMAGED")],
+        return (ActionPlan(order_id=self.order_id,
+                           actions=[ActionProposal(action=Action.REQUEST_REFUND_ONLY, order_id=self.order_id,
+                                                   sku_ids=[self.sku_id], reason_code=self.reason_code)],
                            rationale="政策允许仅退款"),
                 {"request_hash": "x", "response_hash": "y", "usage": {}})
+
+
+def _summary(result: dict, evidence: dict) -> dict:
+    decision = result.get("policy_decision") or {}
+    return {"intent": (result.get("intent_result") or {}).get("intent"),
+            "policy": decision.get("decision"), "reason_code": decision.get("reason_code"),
+            "risk": result.get("risk_decision"), "status": result.get("response_status"),
+            "evidence_status": evidence.get("status"), "evidence_items": len(evidence.get("items") or []),
+            "refund_request_id": result.get("refund_request_id")}
+
+
+async def _run_case(deps, *, label: str, order_id: str, sku_id: str, reason_code: str,
+                    text: str, auto_approve: bool) -> tuple[dict, dict]:
+    """跑一条图用例；auto_approve=True 时自动通过 HITL 审批。"""
+    deps.llm = StubLLM(order_id=order_id, sku_id=sku_id, reason_code=reason_code)  # type: ignore[assignment]
+    ticket = await deps.persistence.create_ticket(tenant_id="tenant_demo", user_id="u_demo",
+                                                  order_id=order_id, intent="UNKNOWN")
+    tid = ticket["ticket_id"]
+    thread_id = f"th_db_{label}"
+    run_id = await deps.persistence.create_run(tenant_id="tenant_demo", ticket_id=tid, thread_id=thread_id)
+    graph = build_graph(deps, checkpointer=InMemorySaver())
+    state = {"tenant_id": "tenant_demo", "user_id": "u_demo", "ticket_id": tid,
+             "thread_id": thread_id, "run_id": run_id, "trace_id": f"tr_{label}",
+             "messages": [{"role": "user", "content": text}]}
+    cfg = {"configurable": {"thread_id": f"{tid}:{run_id}"}}
+    result = await graph.ainvoke(state, config=cfg)
+    if auto_approve and "__interrupt__" in result:
+        approval_id = result["__interrupt__"][0].value["approval_id"]
+        await deps.persistence.decide_approval(tenant_id="tenant_demo", approval_id=approval_id,
+                                              decision="APPROVED", reviewer_id="verify")
+        result = await graph.ainvoke(Command(resume={"approval_id": approval_id, "decision": "APPROVED"}), config=cfg)
+    evidence = result.get("evidence_bundle") or {}
+    print(f"[{label}] graph:", _summary(result, evidence))
+    return result, evidence
 
 
 async def _command_status(sf, refund_request_id: str) -> str | None:
@@ -69,37 +111,31 @@ async def main() -> None:
                         llm_model="stub", llm_model_small="", llm_intent_small_model_enabled=False,
                         rag_backend="pg")
     deps = build_deps(settings)
-    deps.llm = StubLLM()  # type: ignore[assignment]
 
-    ticket = await deps.persistence.create_ticket(tenant_id="tenant_demo", user_id="u_demo",
-                                                  order_id="o_1002", intent="UNKNOWN")
-    tid = ticket["ticket_id"]
-    run_id = await deps.persistence.create_run(tenant_id="tenant_demo", ticket_id=tid, thread_id="th_db")
-    graph = build_graph(deps, checkpointer=InMemorySaver())
-    state = {"tenant_id": "tenant_demo", "user_id": "u_demo", "ticket_id": tid,
-             "thread_id": "th_db", "run_id": run_id, "trace_id": "tr_db",
-             "messages": [{"role": "user", "content": "衣服有质量问题想退款"}]}
-    cfg = {"configurable": {"thread_id": f"{tid}:{run_id}"}}
-    result = await graph.ainvoke(state, config=cfg)
-    # 真实语料未给退款金额上限 -> 风控 REVIEW -> HITL；审批通过后继续
-    if "__interrupt__" in result:
-        approval_id = result["__interrupt__"][0].value["approval_id"]
-        await deps.persistence.decide_approval(tenant_id="tenant_demo", approval_id=approval_id,
-                                              decision="APPROVED", reviewer_id="verify")
-        result = await graph.ainvoke(Command(resume={"approval_id": approval_id, "decision": "APPROVED"}), config=cfg)
-    ev = (result.get("evidence_bundle") or {})
-    print("graph:", {"intent": (result.get("intent_result") or {}).get("intent"),
-                     "policy": (result.get("policy_decision") or {}).get("decision"),
-                     "reason_code": (result.get("policy_decision") or {}).get("reason_code"),
-                     "risk": result.get("risk_decision"), "status": result.get("response_status"),
-                     "evidence_status": ev.get("status"), "evidence_items": len(ev.get("items") or []),
-                     "refund_request_id": result.get("refund_request_id")})
-    assert (result.get("policy_decision") or {}).get("decision") == "ALLOW", "服饰质量问题应判 ALLOW"
+    # 用例 A（安全语义）：服饰质量问题 + 仅退款 —— 政策只授权“退货退款”，
+    # 请求动作不在白名单时必须澄清，不得创建退款申请或资金命令。
+    denied, _ = await _run_case(deps, label="apparel_refund_only", order_id="o_1002", sku_id="sku_a1",
+                                reason_code="DAMAGED", text="衣服有质量问题想退款", auto_approve=False)
+    pd_a = denied.get("policy_decision") or {}
+    assert pd_a.get("decision") == "NEED_INFO", "仅退款未获政策授权时应转澄清"
+    assert pd_a.get("reason_code") == "ACTION_NOT_AUTHORIZED_BY_POLICY", pd_a.get("reason_code")
+    assert denied.get("refund_request_id") is None, "未授权动作不得创建退款申请"
+    assert denied.get("response_status") == "WAITING_USER"
+    print("SAFETY_OK 未授权的仅退款 -> 澄清，未产生资金命令")
+
+    # 用例 B（可执行链路）：未出库订单取消退款 —— 规则明确授权 REQUEST_REFUND_ONLY，
+    # 用于验证「图 -> 退款申请 -> Saga 命令 -> Worker 派发 -> 资金终态」全链路。
+    result, ev = await _run_case(deps, label="unshipped_cancel", order_id="o_1006", sku_id="sku_a2",
+                                 reason_code="NO_LONGER_NEEDED", text="还没发货，我不想要了，退钱吧",
+                                 auto_approve=True)
+    pd_b = result.get("policy_decision") or {}
+    assert pd_b.get("decision") == "ALLOW", f"未出库取消退款应判 ALLOW，实际 {pd_b.get('decision')}"
+    assert pd_b.get("reason_code") == "UNSHIPPED_CANCEL_REFUND", pd_b.get("reason_code")
     assert ev.get("status") == "OK", "证据应闭合（条款齐全）"
 
     wp = SqlPersistence(make_sessionmaker(make_engine(Settings(database_url=WORKER_DSN))))
     rid = result.get("refund_request_id")
-    assert rid, "graph 未创建退款申请"
+    assert rid, "政策授权的用例未创建退款申请"
 
     if "--enqueue-only" in sys.argv:
         print("ENQUEUE_OK refund_request_id=%s" % rid)

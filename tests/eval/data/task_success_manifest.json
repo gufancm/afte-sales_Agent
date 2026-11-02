@@ -31,11 +31,11 @@
   "files": {
     "cases": {
       "path": "tests/eval/data/task_success_v2.jsonl",
-      "sha256": "badac96cc65bcaa747322b12b3a291727a969675756cab1e4ec4b62151e5fea7"
+      "sha256": "95ce0fed5ccf207cb2d49187ac1f7b5b4cd3be1372f579a3a4448c6af1f26a07"
     },
     "fixtures": {
       "path": "tests/eval/data/task_success_fixtures.json",
-      "sha256": "34898bceae1656f5defaf43aa4d47aee03aaf9226c0461de42ae1b6388b708cd",
+      "sha256": "cd7092cc2e3272289ecfda7756c9f7999360f18224fbb60ca0c81e5404bc8dd7",
       "note": "2026-10-29 追加 ts104(FRESH)/ts105(JEWELRY) 供 v2.5 替代用例使用"
     },
     "review": {
@@ -50,7 +50,7 @@
   },
   "policy_rules": {
     "path": "policy/rules.json",
-    "sha256": "12e48859e1e702105e70be73f33e9c0d9ca0e6258d8a1f6db030b231ae56801f"
+    "sha256": "15a0bd0fc9128b290e7361aa77668519e085e221c82fa8448711e363a54da74d"
   },
   "metric_note": "Workflow Handling Success 与 End-to-End Business Completion 分开统计；离线自检不等于 live 成绩",
   "updates": [

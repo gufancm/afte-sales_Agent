@@ -27,6 +27,11 @@ PENDING_POLICY = {
 rows = [json.loads(x) for x in io.open(CASES, encoding="utf-8") if x.strip()]
 
 
+def _sha256_lf(path: pathlib.Path) -> str:
+    """跨平台稳定指纹：Windows(CRLF) 与 CI(LF) 归一化后一致。"""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def _dup_text(dup: dict | None) -> str:
     if not dup:
         return ""
@@ -96,15 +101,15 @@ manifest = {
     "review_status": dict(Counter(r["review_status"] for r in out)),
     "files": {
         "cases": {"path": "tests/eval/data/task_success_v2.jsonl",
-                  "sha256": hashlib.sha256(CASES.read_bytes()).hexdigest()},
+                  "sha256": _sha256_lf(CASES)},
         "fixtures": {"path": "tests/eval/data/task_success_fixtures.json",
-                     "sha256": hashlib.sha256(FIXTURES.read_bytes()).hexdigest()},
+                     "sha256": _sha256_lf(FIXTURES)},
         "review": {"path": "reports/task-success-review-v2.csv"},
         "changes": {"path": "reports/task-success-v2-changes.json"},
         "hitl": {"path": "tests/eval/data/task_success_hitl_v1.jsonl"},
     },
     "policy_rules": {"path": "policy/rules.json",
-                     "sha256": hashlib.sha256((ROOT / "policy" / "rules.json").read_bytes()).hexdigest()},
+                     "sha256": _sha256_lf(ROOT / "policy" / "rules.json")},
     "metric_note": "Workflow Handling Success 与 End-to-End Business Completion 分开统计；离线自检不等于 live 成绩",
 }
 io.open(DATA / "task_success_manifest.json", "w", encoding="utf-8", newline="\n").write(

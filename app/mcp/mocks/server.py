@@ -43,6 +43,9 @@ oms.seed(OrderSnapshot(order_id="o_1004", owner_user_id="u_demo", status="DELIVE
 oms.seed(OrderSnapshot(order_id="o_1005", owner_user_id="u_demo", status="PAID_UNSHIPPED",
                        version="v1", category="PRESALE", currency="CNY",
                        lines=[{"order_line_id": "l1", "sku_id": "sku_p1", "quantity": 1}]))
+oms.seed(OrderSnapshot(order_id="o_1006", owner_user_id="u_demo", status="PAID_UNSHIPPED",
+                       version="v1", category="APPAREL", currency="CNY",
+                       lines=[{"order_line_id": "l1", "sku_id": "sku_a2", "quantity": 1}]))
 tms.seed(LogisticsSnapshot(waybill_no="wb_1", parcel_status="IN_TRANSIT", version="t1"))
 tms.seed(LogisticsSnapshot(waybill_no="wb_2", parcel_status="DELIVERED", version="t2"))
 tms.seed(LogisticsSnapshot(waybill_no="wb_3", parcel_status="DELIVERED", version="t3"))
@@ -51,6 +54,7 @@ fin.seed("o_1002", 50000)
 fin.seed("o_1003", 300000)
 fin.seed("o_1004", 8800)
 fin.seed("o_1005", 10000)
+fin.seed("o_1006", 19900)
 
 # 可选：加载 Task Success / 其他联调 fixture（容器内路径或挂载路径）。
 # 文件格式与 tests/eval/data/task_success_fixtures.json 一致；仅在显式配置时启用。
