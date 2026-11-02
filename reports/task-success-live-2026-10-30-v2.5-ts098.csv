@@ -1,0 +1,2 @@
+﻿case_id,workflow,business,detail,ticket_id,response_type,run_status,elapsed_ms,policy_decision,reason_code,rule_ids,plan_hash,commands
+TS-098,PASS,N/A,MANUAL,2f67f1f7-6083-4998-b582-06f99016c1b0,MANUAL,COMPLETED,29780,MANUAL,AMOUNT_EXCEEDS_AUTO_THRESHOLD,R-JD-COMP-LATE-001,,

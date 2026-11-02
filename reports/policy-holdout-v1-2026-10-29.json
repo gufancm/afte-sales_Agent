@@ -1,0 +1,955 @@
+{
+  "version": "policy-holdout-v1",
+  "date": "2026-10-29",
+  "rules": 26,
+  "dataset": "tests/eval/data/policy_holdout_v1.1.jsonl",
+  "metrics": {
+    "total": 40,
+    "decision_accuracy": 1.0,
+    "reason_code_accuracy": 1.0,
+    "required_clause_accuracy": 1.0,
+    "winner_rule_accuracy": 1.0,
+    "execution_flag_accuracy": 1.0,
+    "replay_determinism": 1.0,
+    "dangerous_release_count": 0,
+    "failed_cases": 0
+  },
+  "by_group": {
+    "允许": {
+      "total": 12,
+      "pass": 12
+    },
+    "拒绝": {
+      "total": 10,
+      "pass": 10
+    },
+    "时间边界": {
+      "total": 6,
+      "pass": 6
+    },
+    "金额边界": {
+      "total": 5,
+      "pass": 5
+    },
+    "缺事实": {
+      "total": 4,
+      "pass": 4
+    },
+    "品类归一": {
+      "total": 3,
+      "pass": 3
+    }
+  },
+  "failed": [],
+  "dangerous_release": [],
+  "rows": [
+    {
+      "case_id": "HV-01",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "QUALITY_RETURN_WINDOW",
+      "actual": "ALLOW",
+      "reason": "QUALITY_RETURN_WINDOW",
+      "expected_rule": "R-JD-Q-RETURN-001",
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "c3f80603cc95f6a4f80b2a40f476c24bb2ac0b089044e2473c25114f4edf4668",
+      "basis": "CL-JD2595-S16 + CL-JD4268-A5：质量问题签收后可退，未排除食品类",
+      "novelty": "主集质量类只用过 APPAREL/FRESH/BOOK_MEDIA/CUSTOM，未用 GROCERY",
+      "problems": []
+    },
+    {
+      "case_id": "HV-02",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "MANUAL",
+      "expected_reason": "IN_TRANSIT_QUALITY_REVIEW",
+      "actual": "MANUAL",
+      "reason": "IN_TRANSIT_QUALITY_REVIEW",
+      "expected_rule": "R-JD-INTRANSIT-QUALITY-001",
+      "rule": "R-JD-INTRANSIT-QUALITY-001",
+      "expected_clauses": [
+        "CL-JD2595-S16"
+      ],
+      "clauses": [
+        "CL-JD2595-S16"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "5a135ce6b0105d31d82a6be6d2e650a88839ac1d70db3b1e0f15b49704c0cb72",
+      "basis": "CL-JD2595-S15/S16：未签收阶段的质量问题走维修/换货，不要求已签收",
+      "novelty": "主集 Q-REPAIR 只在 APPAREL+PAID_SHIPPED 验证过一次",
+      "problems": []
+    },
+    {
+      "case_id": "HV-03",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "QUALITY_RETURN_WINDOW",
+      "actual": "ALLOW",
+      "reason": "QUALITY_RETURN_WINDOW",
+      "expected_rule": "R-JD-Q-RETURN-001",
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "5faacf475928ca33e1afa048440a752b061f996d166c0de3726b269e795e6c3e",
+      "basis": "CL-JD4268-T1#2：虚拟商品仅限制“无理由”，质量问题仍在质量条款内",
+      "novelty": "主集虚拟品类只验证了无理由被拒，未验证质量路径放行",
+      "problems": []
+    },
+    {
+      "case_id": "HV-04",
+      "group": "允许",
+      "intent": "REFUND_ONLY",
+      "expected": "ALLOW",
+      "expected_reason": "QUALITY_RETURN_WINDOW",
+      "actual": "ALLOW",
+      "reason": "QUALITY_RETURN_WINDOW",
+      "expected_rule": "R-JD-Q-RETURN-001",
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "55441b412be546d3cbd29acebed8e779bcfab3d03b683e4c280a6ac9f3199277",
+      "basis": "CL-JD4268-T1#2：家电仅限制无理由退货，不影响质量问题",
+      "novelty": "主集家电只用过无理由例外与安装纠纷，未验证质量退货",
+      "problems": []
+    },
+    {
+      "case_id": "HV-05",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "QUALITY_RETURN_WINDOW",
+      "actual": "ALLOW",
+      "reason": "QUALITY_RETURN_WINDOW",
+      "expected_rule": "R-JD-Q-RETURN-001",
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "efcf923ba3e499c24585e9b9edfc20cf9643a5350a05845b6cf24b9c3a83db41",
+      "basis": "CL-JD4268-S4#2：拆封仅影响“无理由”，质量问题仍可退",
+      "novelty": "主集图书只验证了拆封无理由例外，未验证质量问题",
+      "problems": []
+    },
+    {
+      "case_id": "HV-06",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "QUALITY_RETURN_WINDOW",
+      "actual": "ALLOW",
+      "reason": "QUALITY_RETURN_WINDOW",
+      "expected_rule": "R-JD-Q-RETURN-001",
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "c73b9dc04dbfa042c4e432a0c1fbeb5583311b8eaccefe3abe2e07161906f285",
+      "basis": "CL-JD1190896203588571136-S18：错件属签收异常，但已签收且要求退货时走质量退货",
+      "novelty": "主集错件只在未签收 + REFUND_ONLY 下验证过；此处验证已签收 + 退货",
+      "problems": []
+    },
+    {
+      "case_id": "HV-07",
+      "group": "允许",
+      "intent": "COMPLAINT",
+      "expected": "ALLOW",
+      "expected_reason": "GOLD_WEIGHT_COMPENSATION",
+      "actual": "ALLOW",
+      "reason": "GOLD_WEIGHT_COMPENSATION",
+      "expected_rule": "R-JD-GOLD-WEIGHT-001",
+      "rule": "R-JD-GOLD-WEIGHT-001",
+      "expected_clauses": [
+        "CL-JD1013329543295012864-CH1",
+        "CL-JD1013329543295012864-S4"
+      ],
+      "clauses": [
+        "CL-JD1013329543295012864-CH1",
+        "CL-JD1013329543295012864-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "5f09162ad975511fee4dc637b04d3ea8e1164180c617ce4c82912262d06c68da",
+      "basis": "CL-JD1013329543295012864-CH1/S4：克重补差以“自称重与标识不符”为条件，不含签收时效",
+      "novelty": "主集克重补差都带签收时间；此处验证无时间事实时仍应放行（不依赖时效）",
+      "problems": []
+    },
+    {
+      "case_id": "HV-08",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "MANUAL",
+      "expected_reason": "IN_TRANSIT_QUALITY_REVIEW",
+      "actual": "MANUAL",
+      "reason": "IN_TRANSIT_QUALITY_REVIEW",
+      "expected_rule": "R-JD-INTRANSIT-QUALITY-001",
+      "rule": "R-JD-INTRANSIT-QUALITY-001",
+      "expected_clauses": [
+        "CL-JD2595-S16"
+      ],
+      "clauses": [
+        "CL-JD2595-S16"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "c9faf7282a0d4e77f41feff7bbdef56dfe5a1561fba491fb00fa8574774eb6e3",
+      "basis": "CL-JD1013329543295012864-CH3：计价黄金质量问题，不限订单状态",
+      "novelty": "主集黄金质量只验证 DELIVERED；此处验证未签收(PAID_SHIPPED)仍命中",
+      "problems": []
+    },
+    {
+      "case_id": "HV-09",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "EBIKE_MOTOR_RETURN",
+      "actual": "ALLOW",
+      "reason": "EBIKE_MOTOR_RETURN",
+      "expected_rule": "R-JD-EBIKE-3BAO-001",
+      "rule": "R-JD-EBIKE-3BAO-001",
+      "expected_clauses": [
+        "CL-JD3836-CH2",
+        "CL-JD3836-CH2#2"
+      ],
+      "clauses": [
+        "CL-JD3836-CH2",
+        "CL-JD3836-CH2#2"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "739984a5b1b967fd273c56b0b219b0f384d6a1ca49d57e8442dffe2f729f6508",
+      "basis": "CL-JD3836-CH2：电动车三包按整车/电池/电机分档，质量问题适用",
+      "novelty": "主集电动车只用过 DAMAGED/NOT_AS_DESCRIBED；此处用 WRONG_ITEM",
+      "problems": []
+    },
+    {
+      "case_id": "HV-10",
+      "group": "允许",
+      "intent": "COMPLAINT",
+      "expected": "ALLOW",
+      "expected_reason": "LATE_DELIVERY_COMPENSATION",
+      "actual": "ALLOW",
+      "reason": "LATE_DELIVERY_COMPENSATION",
+      "expected_rule": "R-JD-COMP-LATE-001",
+      "rule": "R-JD-COMP-LATE-001",
+      "expected_clauses": [
+        "CL-JD1190896203588571136-S13",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "clauses": [
+        "CL-JD1190896203588571136-S13",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "95ca9eb7949df31ecac1cb3234d01f934dd6ad326c3733cd0ed2e791a107e8e0",
+      "basis": "CL-JD1190896203588571136-S20：超时 3 天内扣 6 元/单，1 分钱申请不超上限",
+      "novelty": "主集金额最小 0/1999；此处验证 1 分的极小值",
+      "problems": []
+    },
+    {
+      "case_id": "HV-11",
+      "group": "允许",
+      "intent": "COMPLAINT",
+      "expected": "ALLOW",
+      "expected_reason": "OUT_OF_STOCK_COMPENSATION",
+      "actual": "ALLOW",
+      "reason": "OUT_OF_STOCK_COMPENSATION",
+      "expected_rule": "R-JD-COMP-OOS-001",
+      "rule": "R-JD-COMP-OOS-001",
+      "expected_clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "412fbff03d3e525b0271d31db1c00485eedd4dcf37d3e0dbc7f2d9df068e417d",
+      "basis": "CL-JD1190896203588571136-S17/S20：缺货赔付按单，1999 分未超自动执行阈值",
+      "novelty": "主集缺货只用 1000/2000/2001；此处用 1999（阈值下 1 分）",
+      "problems": []
+    },
+    {
+      "case_id": "HV-12",
+      "group": "允许",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "NO_REASON_WITHIN_7D",
+      "actual": "ALLOW",
+      "reason": "NO_REASON_WITHIN_7D",
+      "expected_rule": "R-JD-NR-WINDOW-OK-001",
+      "rule": "R-JD-NR-WINDOW-OK-001",
+      "expected_clauses": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "clauses": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "c2a18cb55c47d74f3a7348ccd15d4d3c641d897e4641bb622c9b5c3f3896acd0",
+      "basis": "CL-JD4268-A3：自签收之日起 7 个自然日内",
+      "novelty": "主集第 7 天边界只用 APPAREL；此处验证 GROCERY（非例外品类）第 7 天",
+      "problems": []
+    },
+    {
+      "case_id": "HV-13",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_DIGITAL_EXEMPT",
+      "actual": "DENY",
+      "reason": "NO_REASON_DIGITAL_EXEMPT",
+      "expected_rule": "R-JD-NR-DENY-DIGITAL-001",
+      "rule": "R-JD-NR-DENY-DIGITAL-001",
+      "expected_clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "4f525e660aa0a0ab486ea50b3acdac403aa64daa5cf197947f043820aa7cf3e9",
+      "basis": "CL-JD4268-T1#2：虚拟类不适用 7 天无理由（与是否超期无关）",
+      "novelty": "主集虚拟无理由在第 1 天；此处第 9 天，验证例外优先于超期两条拒绝规则",
+      "problems": []
+    },
+    {
+      "case_id": "HV-14",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_DIGITAL_EXEMPT",
+      "actual": "DENY",
+      "reason": "NO_REASON_DIGITAL_EXEMPT",
+      "expected_rule": "R-JD-NR-DENY-DIGITAL-001",
+      "rule": "R-JD-NR-DENY-DIGITAL-001",
+      "expected_clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "b15009f98a96d8f9d262faa487b8ea972723f25569e56d23b2b8bbde4f05c776",
+      "basis": "CL-JD4268-T1#2：已联网/激活类不适用无理由（家电同样归入该例外档）",
+      "novelty": "主集家电用 SIZE_ISSUE 在第 3 天；此处 COLOR_MISMATCH 第 6 天（仍在 7 天内）",
+      "problems": []
+    },
+    {
+      "case_id": "HV-15",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_WINDOW_EXPIRED",
+      "actual": "DENY",
+      "reason": "NO_REASON_WINDOW_EXPIRED",
+      "expected_rule": "R-JD-NR-WINDOW-EXPIRED-001",
+      "rule": "R-JD-NR-WINDOW-EXPIRED-001",
+      "expected_clauses": [
+        "CL-JD4268-A3"
+      ],
+      "clauses": [
+        "CL-JD4268-A3"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "b57e2794317ec3d78548fa17a50a574468b7bd7c9e19911fda86274f74d25b79",
+      "basis": "CL-JD4268-A3：7 个自然日，第 8 天起不再适用",
+      "novelty": "主集第 8 天用 APPAREL；此处用 GROCERY 且时间点为 00:00:00",
+      "problems": []
+    },
+    {
+      "case_id": "HV-16",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_SEALED_EXEMPT",
+      "actual": "DENY",
+      "reason": "NO_REASON_SEALED_EXEMPT",
+      "expected_rule": "R-JD-NR-DENY-SEALED-001",
+      "rule": "R-JD-NR-DENY-SEALED-001",
+      "expected_clauses": [
+        "CL-JD4268-S4#2",
+        "CL-JD4268-S5"
+      ],
+      "clauses": [
+        "CL-JD4268-S4#2",
+        "CL-JD4268-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "bfb08ab295a2c9e22edd00c75cb5db0c9a957ac477b9d5383c332e0c43142935",
+      "basis": "CL-JD4268-S4#2：图书音像拆封后不适用无理由",
+      "novelty": "主集图书用 NO_LONGER_NEEDED/COLOR_MISMATCH；此处用 SIZE_ISSUE 第 2 天",
+      "problems": []
+    },
+    {
+      "case_id": "HV-17",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_CUSTOM_EXEMPT",
+      "actual": "DENY",
+      "reason": "NO_REASON_CUSTOM_EXEMPT",
+      "expected_rule": "R-JD-NR-DENY-CUSTOM-001",
+      "rule": "R-JD-NR-DENY-CUSTOM-001",
+      "expected_clauses": [
+        "CL-JD4268-T1",
+        "CL-JD4268-S5#3"
+      ],
+      "clauses": [
+        "CL-JD4268-T1",
+        "CL-JD4268-S5#3"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "35db6e98a1b477e4049a49eaede3036afbb4e178a872d9089983692a44d657c2",
+      "basis": "CL-JD4268-T1：定做类商品不适用 7 天无理由",
+      "novelty": "主集定制用第 2/7 天；此处签收当日申请（第 1 天）",
+      "problems": []
+    },
+    {
+      "case_id": "HV-18",
+      "group": "拒绝",
+      "intent": "RESHIPMENT",
+      "expected": "DENY",
+      "expected_reason": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+      "actual": "DENY",
+      "reason": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+      "expected_rule": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "rule": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "expected_clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "312514eea35618bf43799f249d3c6373bd7f077e8b509e8b591723930cf91a4e",
+      "basis": "CL-JD1148155761021554688-S4：签收次日 0 点起算 15 个自然日",
+      "novelty": "主集烘焙超期用 16/30/61 天；此处第 19 天且跨月",
+      "problems": []
+    },
+    {
+      "case_id": "HV-19",
+      "group": "拒绝",
+      "intent": "INTERCEPT_REFUND",
+      "expected": "DENY",
+      "expected_reason": "INTERCEPT_ALREADY_DELIVERED",
+      "actual": "DENY",
+      "reason": "INTERCEPT_ALREADY_DELIVERED",
+      "expected_rule": "R-JD-INTERCEPT-DELIVERED-DENY-001",
+      "rule": "R-JD-INTERCEPT-DELIVERED-DENY-001",
+      "expected_clauses": [
+        "CL-JD590903538377428992-S5"
+      ],
+      "clauses": [
+        "CL-JD590903538377428992-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "2a590e4f80fe74bcc6b0e749bf0580978bcfd91d29487149c51f7c4846edfb43",
+      "basis": "CL-JD590903538377428992-S5 第 3 项：仅在消费者签收前才通知承运方拦截",
+      "novelty": "主集已签收拦截用 parcel=DELIVERED；此处 parcel=SIGNED 且订单仍是 DELIVERED，同时命中 7 天允许",
+      "problems": []
+    },
+    {
+      "case_id": "HV-20",
+      "group": "拒绝",
+      "intent": "INTERCEPT_REFUND",
+      "expected": "DENY",
+      "expected_reason": "INTERCEPT_ALREADY_DELIVERED",
+      "actual": "DENY",
+      "reason": "INTERCEPT_ALREADY_DELIVERED",
+      "expected_rule": "R-JD-INTERCEPT-DELIVERED-DENY-001",
+      "rule": "R-JD-INTERCEPT-DELIVERED-DENY-001",
+      "expected_clauses": [
+        "CL-JD590903538377428992-S5"
+      ],
+      "clauses": [
+        "CL-JD590903538377428992-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "aef1d3c18045781ebe53adda8a8ae50233f965008325865fe915775758edc1d5",
+      "basis": "同上：物流已妥投，退款应走售后而非拦截",
+      "novelty": "主集此规则只用 DELIVERED 订单状态；此处订单 SHIPPED + 物流 DELIVERED",
+      "problems": []
+    },
+    {
+      "case_id": "HV-21",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_WINDOW_EXPIRED",
+      "actual": "DENY",
+      "reason": "NO_REASON_WINDOW_EXPIRED",
+      "expected_rule": "R-JD-NR-WINDOW-EXPIRED-001",
+      "rule": "R-JD-NR-WINDOW-EXPIRED-001",
+      "expected_clauses": [
+        "CL-JD4268-A3"
+      ],
+      "clauses": [
+        "CL-JD4268-A3"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "85c3defcef27ef7f9a33b37b7b199022c05190c19aec7258c1d8290945a13bb8",
+      "basis": "CL-JD4268-A3：超期即不再适用无理由，金额大小不影响时效结论",
+      "novelty": "主集超期用例都不带金额；此处带 100 分，验证金额不改变政策结论",
+      "problems": []
+    },
+    {
+      "case_id": "HV-22",
+      "group": "拒绝",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_DIGITAL_EXEMPT",
+      "actual": "DENY",
+      "reason": "NO_REASON_DIGITAL_EXEMPT",
+      "expected_rule": "R-JD-NR-DENY-DIGITAL-001",
+      "rule": "R-JD-NR-DENY-DIGITAL-001",
+      "expected_clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "965b9b4a7ff293ac9a54c2a4a03ab8ac9579ea1423f34cebb1ea9518859b7dce",
+      "basis": "CL-JD4268-T1#2：数码不适用无理由；第 8 天时两条拒绝规则同时命中，例外档优先",
+      "novelty": "主集第 8 天只对 APPAREL 验证；此处验证 DIGITAL+第 8 天的双拒绝冲突",
+      "problems": []
+    },
+    {
+      "case_id": "HV-23",
+      "group": "时间边界",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "NO_REASON_WITHIN_7D",
+      "actual": "ALLOW",
+      "reason": "NO_REASON_WITHIN_7D",
+      "expected_rule": "R-JD-NR-WINDOW-OK-001",
+      "rule": "R-JD-NR-WINDOW-OK-001",
+      "expected_clauses": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "clauses": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "d7cc677566794b1f77dbd93f97faa2b0e16065192b4c44f04dc8ad026edaeec0",
+      "basis": "CL-JD4268-A3：第 6 天 23:59 仍在 7 个自然日内",
+      "novelty": "主集没有第 6 天末的用例",
+      "problems": []
+    },
+    {
+      "case_id": "HV-24",
+      "group": "时间边界",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "NO_REASON_WITHIN_7D",
+      "actual": "ALLOW",
+      "reason": "NO_REASON_WITHIN_7D",
+      "expected_rule": "R-JD-NR-WINDOW-OK-001",
+      "rule": "R-JD-NR-WINDOW-OK-001",
+      "expected_clauses": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "clauses": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "885936e6080ff8bebae235e51e3c3d30098157a22d2587f52dea2fa096eb81f9",
+      "basis": "CL-JD4268-A3：签收与申请都在 00:00:00，按自然日算第 2 天",
+      "novelty": "主集没有“两端都是零点”的用例",
+      "problems": []
+    },
+    {
+      "case_id": "HV-25",
+      "group": "时间边界",
+      "intent": "RESHIPMENT",
+      "expected": "ALLOW",
+      "expected_reason": "BAKERY_EXCHANGE_WITHIN_15D",
+      "actual": "ALLOW",
+      "reason": "BAKERY_EXCHANGE_WITHIN_15D",
+      "expected_rule": "R-JD-BAKERY-WINDOW-OK-001",
+      "rule": "R-JD-BAKERY-WINDOW-OK-001",
+      "expected_clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "a556f5c4bcfe9ef15c2246a01abbdf8746fe7baf48b08ccc5ce35ef13cb8cc12",
+      "basis": "CL-JD1148155761021554688-S4：次日 0 点起算，第 14 天仍在窗口内",
+      "novelty": "主集烘焙边界集中在 15/16 天与第 3/10 天；此处第 14 天",
+      "problems": []
+    },
+    {
+      "case_id": "HV-26",
+      "group": "时间边界",
+      "intent": "RESHIPMENT",
+      "expected": "DENY",
+      "expected_reason": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+      "actual": "DENY",
+      "reason": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+      "expected_rule": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "rule": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "expected_clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "77ed76dffd173f2fe9ec5fadb1132425dfd774852267e1f24c9435a6bdb45289",
+      "basis": "CL-JD1148155761021554688-S4：次日 0 点起算第 16 天即超期",
+      "novelty": "主集第 16 天用例在 00:00/00:05；此处 11:59（同日不同时刻）",
+      "problems": []
+    },
+    {
+      "case_id": "HV-32",
+      "group": "时间边界",
+      "intent": "RESHIPMENT",
+      "expected": "ALLOW",
+      "expected_reason": "BAKERY_EXCHANGE_WITHIN_15D",
+      "actual": "ALLOW",
+      "reason": "BAKERY_EXCHANGE_WITHIN_15D",
+      "expected_rule": "R-JD-BAKERY-WINDOW-OK-001",
+      "rule": "R-JD-BAKERY-WINDOW-OK-001",
+      "expected_clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "clauses": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "59a719f48c81e40774723d6845ae251c07ede2c2db8bf591e3f431121d2707ec",
+      "basis": "CL-JD1148155761021554688-S4：第 15 天 23:59:59 仍在窗口内（含临界秒）",
+      "novelty": "主集该秒点用于 7 天规则；此处用于烘焙 15 天规则",
+      "problems": []
+    },
+    {
+      "case_id": "HV-40",
+      "group": "时间边界",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_WINDOW_EXPIRED",
+      "actual": "DENY",
+      "reason": "NO_REASON_WINDOW_EXPIRED",
+      "expected_rule": "R-JD-NR-WINDOW-EXPIRED-001",
+      "rule": "R-JD-NR-WINDOW-EXPIRED-001",
+      "expected_clauses": [
+        "CL-JD4268-A3"
+      ],
+      "clauses": [
+        "CL-JD4268-A3"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "0ca45217f8857cf6758c5ea32116a20abd8d2b4d7589889cfa69c9b96021db93",
+      "basis": "CL-JD4268-A3：第 20 天已远超 7 个自然日",
+      "novelty": "主集超期最大 61 天（烘焙）与 31 天（无理由）；此处 20 天且为普通品类",
+      "problems": []
+    },
+    {
+      "case_id": "HV-27",
+      "group": "金额边界",
+      "intent": "COMPLAINT",
+      "expected": "MANUAL",
+      "expected_reason": "AMOUNT_EXCEEDS_AUTO_THRESHOLD",
+      "actual": "MANUAL",
+      "reason": "AMOUNT_EXCEEDS_AUTO_THRESHOLD",
+      "expected_rule": "R-JD-COMP-OOS-001",
+      "rule": "R-JD-COMP-OOS-001",
+      "expected_clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "5fbe4cec957a5aa048a3141810f0a05341109f9bfdc89e43a56f5ec7cf6ed856",
+      "basis": "自动执行阈值 2000 分：超 1 分应转人工审批，但资格仍在",
+      "novelty": "主集虚假发货只用 1000/5000；此处验证 2001 这一临界值",
+      "problems": []
+    },
+    {
+      "case_id": "HV-28",
+      "group": "金额边界",
+      "intent": "COMPLAINT",
+      "expected": "ALLOW",
+      "expected_reason": "OUT_OF_STOCK_COMPENSATION",
+      "actual": "ALLOW",
+      "reason": "OUT_OF_STOCK_COMPENSATION",
+      "expected_rule": "R-JD-COMP-OOS-001",
+      "rule": "R-JD-COMP-OOS-001",
+      "expected_clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "98aab93637a4a110a056699d105377229316c5d82cc22c5a147ff1d66a80dc3a",
+      "basis": "CL-JD1190896203588571136-S17：虚假发货同属缺货/无货类赔付，2000 分恰在上限",
+      "novelty": "主集虚假发货用 1000 与 5000；此处验证阈值上界 2000",
+      "problems": []
+    },
+    {
+      "case_id": "HV-29",
+      "group": "金额边界",
+      "intent": "COMPLAINT",
+      "expected": "MANUAL",
+      "expected_reason": "CATEGORY_UNKNOWN_REVIEW",
+      "actual": "MANUAL",
+      "reason": "CATEGORY_UNKNOWN_REVIEW",
+      "expected_rule": "R-JD-CATEGORY-UNKNOWN-001",
+      "rule": "R-JD-CATEGORY-UNKNOWN-001",
+      "expected_clauses": [],
+      "clauses": [],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "334e63a323329dc9ee691f14ed1101c5c4255a43d31bce3e7f0bcac13d002a2f",
+      "basis": "未知品类 fail-closed：即使赔付规则命中，也必须人工确认品类",
+      "novelty": "主集未验证“未知品类 + 赔付类诉求”的冲突",
+      "problems": []
+    },
+    {
+      "case_id": "HV-30",
+      "group": "金额边界",
+      "intent": "COMPLAINT",
+      "expected": "ALLOW",
+      "expected_reason": "OUT_OF_STOCK_COMPENSATION",
+      "actual": "ALLOW",
+      "reason": "OUT_OF_STOCK_COMPENSATION",
+      "expected_rule": "R-JD-COMP-OOS-001",
+      "rule": "R-JD-COMP-OOS-001",
+      "expected_clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "clauses": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "09dd57e80136244855e5bf8951932823fc44f2d608a5b4f20b5fa9e0b654a259",
+      "basis": "CL-JD1190896203588571136-S17：赔付按单，0 分不超上限（政策未设下限）",
+      "novelty": "主集 0 分用在延迟发货；此处用于缺货",
+      "problems": []
+    },
+    {
+      "case_id": "HV-31",
+      "group": "金额边界",
+      "intent": "STATUS_QUERY",
+      "expected": "MANUAL",
+      "expected_reason": "AMOUNT_EXCEEDS_AUTO_THRESHOLD",
+      "actual": "MANUAL",
+      "reason": "AMOUNT_EXCEEDS_AUTO_THRESHOLD",
+      "expected_rule": "R-JD-COMP-LATE-001",
+      "rule": "R-JD-COMP-LATE-001",
+      "expected_clauses": [
+        "CL-JD1190896203588571136-S13",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "clauses": [
+        "CL-JD1190896203588571136-S13",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "e36e73ccdeff1aeeb71b6e4e189ada458dcc376c769d86654fa649610d087e23",
+      "basis": "赔偿规则不限制意图：查询意图下命中赔付规则同样受阈值约束",
+      "novelty": "主集金额超阈值都在 COMPLAINT 意图下；此处验证意图不改变赔付规则命中",
+      "problems": []
+    },
+    {
+      "case_id": "HV-33",
+      "group": "缺事实",
+      "intent": "RETURN_REFUND",
+      "expected": "NEED_INFO",
+      "expected_reason": "MISSING_FACT",
+      "actual": "NEED_INFO",
+      "reason": "MISSING_FACT",
+      "expected_rule": null,
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [],
+      "clauses": [],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "d5b7a137c7dba05a0f5c1f0194cc173d805258af0e3ea4fccc391a5d9eaffd29",
+      "basis": "缺退货原因时无法判断适用例外还是窗口，必须先问清",
+      "novelty": "主集缺原因用例用 APPAREL/FRESH；此处用 GROCERY 且时间完整（只剩原因未知）",
+      "problems": []
+    },
+    {
+      "case_id": "HV-34",
+      "group": "缺事实",
+      "intent": "RETURN_REFUND",
+      "expected": "ALLOW",
+      "expected_reason": "QUALITY_RETURN_WINDOW",
+      "actual": "ALLOW",
+      "reason": "QUALITY_RETURN_WINDOW",
+      "expected_rule": "R-JD-Q-RETURN-001",
+      "rule": "R-JD-Q-RETURN-001",
+      "expected_clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "clauses": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "43ef8b978894288e5d6e39ec5a8685a60231bdf7895a1b2523b4384897ff2d3f",
+      "basis": "CL-JD2595-S16：质量问题退货不以“签收时间”为前提条件",
+      "novelty": "主集所有质量用例都带签收时间；此处验证缺签收时间不影响质量路径",
+      "problems": []
+    },
+    {
+      "case_id": "HV-35",
+      "group": "缺事实",
+      "intent": "RESHIPMENT",
+      "expected": "MANUAL",
+      "expected_reason": "AUTHORITATIVE_FACT_UNAVAILABLE",
+      "actual": "MANUAL",
+      "reason": "AUTHORITATIVE_FACT_UNAVAILABLE",
+      "expected_rule": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "rule": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "expected_clauses": [],
+      "clauses": [],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "e379d2a196a8368638702815a7df1c6fa569044c708af7d84d41c8592186bc0a",
+      "basis": "CL-JD1148155761021554688-S4：烘焙 15 天窗口必须知道申请时刻",
+      "novelty": "主集烘焙缺时间只测过第 15 天前；此处验证缺 claim_at 走 NEED_INFO 而不是直接放行",
+      "problems": []
+    },
+    {
+      "case_id": "HV-36",
+      "group": "品类归一",
+      "intent": "RETURN_REFUND",
+      "expected": "DENY",
+      "expected_reason": "NO_REASON_DIGITAL_EXEMPT",
+      "actual": "DENY",
+      "reason": "NO_REASON_DIGITAL_EXEMPT",
+      "expected_rule": "R-JD-NR-DENY-DIGITAL-001",
+      "rule": "R-JD-NR-DENY-DIGITAL-001",
+      "expected_clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "clauses": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "34a5fe1bfbd775b04b10d766e62f128309e959ce2dae2e72df7e6fbc5549f673",
+      "basis": "CL-JD4268-T1#2：家电属不适用无理由的商品档",
+      "novelty": "主集中文别名用“生鲜/图书/定制/烘焙/黄金/电动车”；此处用“家电”",
+      "problems": []
+    },
+    {
+      "case_id": "HV-37",
+      "group": "品类归一",
+      "intent": "RETURN_REFUND",
+      "expected": "MANUAL",
+      "expected_reason": "CATEGORY_UNKNOWN_REVIEW",
+      "actual": "MANUAL",
+      "reason": "CATEGORY_UNKNOWN_REVIEW",
+      "expected_rule": "R-JD-CATEGORY-UNKNOWN-001",
+      "rule": "R-JD-CATEGORY-UNKNOWN-001",
+      "expected_clauses": [],
+      "clauses": [],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "5d7015849a6ae192fd1807a499d1cae673eb442e1d1da482135d3a1705a67b45",
+      "basis": "未知品类无法确定适用哪一档例外/质量政策，必须人工",
+      "novelty": "主集未知品类用 no-reason；此处用质量原因，验证未知品类压过质量允许",
+      "problems": []
+    },
+    {
+      "case_id": "HV-38",
+      "group": "品类归一",
+      "intent": "INTERCEPT_REFUND",
+      "expected": "MANUAL",
+      "expected_reason": "CATEGORY_UNKNOWN_REVIEW",
+      "actual": "MANUAL",
+      "reason": "CATEGORY_UNKNOWN_REVIEW",
+      "expected_rule": "R-JD-CATEGORY-UNKNOWN-001",
+      "rule": "R-JD-CATEGORY-UNKNOWN-001",
+      "expected_clauses": [],
+      "clauses": [],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "860a603e80d77d981273ad14c3cfdc7484f4411bedc6fdb0bcff35127a00fdb3",
+      "basis": "未知品类 + 可拦截状态：拦截允许不得越过品类未知的强制人工",
+      "novelty": "主集未验证“未知品类 + 在途拦截允许”的冲突",
+      "problems": []
+    },
+    {
+      "case_id": "HV-39",
+      "group": "缺事实",
+      "intent": "REFUND_ONLY",
+      "expected": "ALLOW",
+      "expected_reason": "UNSHIPPED_CANCEL_REFUND",
+      "actual": "ALLOW",
+      "reason": "UNSHIPPED_CANCEL_REFUND",
+      "expected_rule": "R-JD-CANCEL-UNSHIPPED-001",
+      "rule": "R-JD-CANCEL-UNSHIPPED-001",
+      "expected_clauses": [
+        "CL-JD590903538377428992-S3#2",
+        "CL-JD590903538377428992-S3"
+      ],
+      "clauses": [
+        "CL-JD590903538377428992-S3#2",
+        "CL-JD590903538377428992-S3"
+      ],
+      "ruleset_hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+      "facts_snapshot_id": "de34e6c2d03e6f5265dd9916df90b505eab178350953c15ef7498490e7f448fc",
+      "basis": "签收时间是 OMS 权威事实，缺失时不能要求用户自行填写（只能人工核实）",
+      "novelty": "主集缺签收时间都在“无理由 + DELIVERED”下；此处订单未发货、没有任何规则命中，验证兜底路径同样区分权威事实",
+      "problems": []
+    }
+  ]
+}

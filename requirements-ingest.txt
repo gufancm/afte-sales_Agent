@@ -1,0 +1,9 @@
+# Ingest（离线文档解析 / Parent-Child 构建）依赖 —— 与 API 镜像隔离，避免把 torch 塞进运行时
+# 绑定版本（本机 E:\agent\.venv-ingest 实测通过）
+docling==2.142.1
+docling-core==2.104.0
+docling-ibm-models==4.0.4
+docling-parse==7.23.0
+transformers==5.20.2
+torch==2.14.1
+pdfplumber==0.11.10

@@ -1,0 +1,60 @@
+{
+  "version": "policy-eval-v2",
+  "date": "2026-10-29",
+  "rules": 26,
+  "metrics": {
+    "total": 120,
+    "decision_accuracy": 1.0,
+    "reason_code_accuracy": 1.0,
+    "required_clause_accuracy": 1.0,
+    "winner_rule_accuracy": 1.0,
+    "key_condition_decidable_rate": 1.0,
+    "policy_version_accuracy": 1.0,
+    "execution_flag_accuracy": 1.0,
+    "ruleset_hash_consistency": true,
+    "ruleset_hash_by_size": {
+      "26": [
+        "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3"
+      ],
+      "0": [
+        "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      ]
+    },
+    "dangerous_release_count": 0,
+    "over_block_count": 0,
+    "failed_cases": 0
+  },
+  "by_group": {
+    "正常允许": {
+      "total": 20,
+      "pass": 20
+    },
+    "明确拒绝": {
+      "total": 20,
+      "pass": 20
+    },
+    "缺少事实": {
+      "total": 15,
+      "pass": 15
+    },
+    "时间边界": {
+      "total": 20,
+      "pass": 20
+    },
+    "金额与数量": {
+      "total": 15,
+      "pass": 15
+    },
+    "特殊例外": {
+      "total": 20,
+      "pass": 20
+    },
+    "品类与版本": {
+      "total": 10,
+      "pass": 10
+    }
+  },
+  "failed": [],
+  "dangerous_release": [],
+  "over_block": []
+}

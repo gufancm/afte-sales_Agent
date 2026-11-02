@@ -1,0 +1,64 @@
+{
+  "dataset": "task_success_v2",
+  "version": "2.0.0",
+  "date": "2026-10-28",
+  "cases": 100,
+  "turns": 106,
+  "multi_turn_cases": 6,
+  "groups": {
+    "仅退款": 20,
+    "退货退款": 20,
+    "在途拦截退款": 15,
+    "补发商品": 15,
+    "催发货与物流查询": 10,
+    "投诉和人工转接": 10,
+    "多轮澄清、异常与失败恢复": 10
+  },
+  "response_types": {
+    "NEED_INFO": 12,
+    "DENIED": 23,
+    "PROCESSING": 21,
+    "MANUAL": 38,
+    "ANSWER": 6
+  },
+  "approval_required": 14,
+  "business_applicable": 11,
+  "commands_total": 21,
+  "review_status": {
+    "corrected": 53,
+    "pending": 47
+  },
+  "files": {
+    "cases": {
+      "path": "tests/eval/data/task_success_v2.jsonl",
+      "sha256": "badac96cc65bcaa747322b12b3a291727a969675756cab1e4ec4b62151e5fea7"
+    },
+    "fixtures": {
+      "path": "tests/eval/data/task_success_fixtures.json",
+      "sha256": "34898bceae1656f5defaf43aa4d47aee03aaf9226c0461de42ae1b6388b708cd",
+      "note": "2026-10-29 追加 ts104(FRESH)/ts105(JEWELRY) 供 v2.5 替代用例使用"
+    },
+    "review": {
+      "path": "reports/task-success-review-v2.csv"
+    },
+    "changes": {
+      "path": "reports/task-success-v2-changes.json"
+    },
+    "hitl": {
+      "path": "tests/eval/data/task_success_hitl_v1.jsonl"
+    }
+  },
+  "policy_rules": {
+    "path": "policy/rules.json",
+    "sha256": "12e48859e1e702105e70be73f33e9c0d9ca0e6258d8a1f6db030b231ae56801f"
+  },
+  "metric_note": "Workflow Handling Success 与 End-to-End Business Completion 分开统计；离线自检不等于 live 成绩",
+  "updates": [
+    {
+      "date": "2026-10-29",
+      "v2.5": "替换 TS-069/TS-070 为可 live 复现用例；fixtures 增加 ts104/ts105",
+      "fixtures_sha256_before": "206889f9dba73b44a499572f4e99ef8eaf267ba51bfea8ff667776adc80b53ee",
+      "fixtures_sha256_after": "34898bceae1656f5defaf43aa4d47aee03aaf9226c0461de42ae1b6388b708cd"
+    }
+  ]
+}

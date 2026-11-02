@@ -1,0 +1,122 @@
+{
+ "version": "2.2.0",
+ "date": "2026-10-29",
+ "parent": "2.1.0",
+ "principle": "旧版冻结数据与成绩继续保留；本版只记录第四次复核后的改动，单独成版重跑",
+ "task_success": [
+  {
+   "case_id": "TS-060",
+   "before": {
+    "requested_action": "CREATE_RESHIPMENT"
+   },
+   "after": {
+    "speech_act": "ELIGIBILITY_QUERY",
+    "requested_action": null
+   },
+   "why": "用户问的是“第16天还能换货吗”，属于资格咨询，不应生成补发写动作"
+  },
+  {
+   "case_id": "TS-061",
+   "before": {
+    "requested_action": "CREATE_RESHIPMENT"
+   },
+   "after": {
+    "speech_act": "ELIGIBILITY_QUERY",
+    "requested_action": null
+   },
+   "why": "同 TS-060，第20天换货资格咨询"
+  },
+  {
+   "case_id": "TS-096",
+   "before": {
+    "duplicate_submission": "仅命令层断言"
+   },
+   "after": {
+    "duplicate_submission": {
+     "turns": 2,
+     "expected": {
+      "approvals": 1,
+      "refund_requests": 1,
+      "commands": 1
+     }
+    }
+   },
+   "why": "命令去重不等于工作流幂等；审批与退款申请层必须同时只留一份"
+  },
+  {
+   "case_id": "TS-003",
+   "change": "移出正式分母",
+   "to": "pending_policy_v3",
+   "why": "缺少“食品一次性密封包装是否破损”这一决定性事实"
+  },
+  {
+   "case_id": "TS-011",
+   "change": "移出正式分母",
+   "to": "pending_policy_v3",
+   "why": "缺少“平板是否激活/封签状态”这一决定性事实"
+  },
+  {
+   "case_id": "TS-012",
+   "change": "移出正式分母",
+   "to": "pending_policy_v3",
+   "why": "缺少“冰箱是否安装”这一决定性事实"
+  },
+  {
+   "case_id": "TS-101",
+   "change": "补入",
+   "expect": {
+    "decision": "DENY",
+    "reason_code": "NO_REASON_CUSTOM_EXEMPT"
+   },
+   "why": "T1 第1类：定制类商品不适用七天无理由，条款直接可判"
+  },
+  {
+   "case_id": "TS-102",
+   "change": "补入",
+   "expect": {
+    "decision": "DENY",
+    "reason_code": "NO_REASON_SEALED_EXEMPT"
+   },
+   "why": "T1 第3类：图书密封包装拆封后不适用，条款直接可判"
+  },
+  {
+   "case_id": "TS-103",
+   "change": "补入",
+   "expect": {
+    "decision": "DENY",
+    "reason_code": "NO_REASON_FRESH_EXEMPT"
+   },
+   "why": "T1 第2类：生鲜易腐不适用七天无理由，条款直接可判"
+  }
+ ],
+ "code": [
+  {
+   "file": "app/graph/nodes.py",
+   "change": "plan_hash 改为业务内容指纹",
+   "why": "原哈希掺入 policy_decision_id / quote_id / reservation_reference / 过期时间，同一诉求重放得到不同 plan_hash，导致重复审批、重复退款申请与重复命令"
+  },
+  {
+   "file": "tests/eval/run_task_success.py",
+   "change": "幂等断言改读 refund_requests 列",
+   "why": "SQL 别名与断言的键名不一致，退款申请数永远读成 None"
+  },
+  {
+   "file": "tests/eval/make_human_review_sheet.py",
+   "change": "核对表增加‘幂等断言’列",
+   "why": "让审批/退款/命令三层去重结果在人工核对表里直接可见"
+  }
+ ],
+ "results": {
+  "pytest": "213 passed",
+  "policy_120": "120/120, dangerous_release=0",
+  "policy_holdout": "40/40",
+  "task_success_offline": "100/100",
+  "ts096_live": {
+   "approvals": 1,
+   "distinct_plan_hash": 1,
+   "refund_requests": 1,
+   "commands": 1,
+   "command_status": "CONFIRMED"
+  }
+ }
+}

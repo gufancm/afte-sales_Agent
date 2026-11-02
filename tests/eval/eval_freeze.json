@@ -1,0 +1,59 @@
+{
+  "eval": "E1",
+  "version": "v1.0",
+  "frozen_at": "2026-10-27",
+  "review": "human-reviewed (第六次复核：410/410 确认，零改动)",
+  "total": 410,
+  "files": {
+    "intent_golden.jsonl": {
+      "count": 320,
+      "sha256": "1c9f5f0bf8d3c526a488f96849504e47d5c25bc9875a982c648d5476f3c4e744"
+    },
+    "intent_multi.jsonl": {
+      "count": 40,
+      "sha256": "9553e92714c82de1d9fb28ffca9450184b917979cfcc6b5774165e7a92736e98"
+    },
+    "intent_safety.jsonl": {
+      "count": 40,
+      "sha256": "c110dd49886bd891840fdc3060dbaa3caec5210192c07e77e858980b59bde1ee"
+    },
+    "intent_safety_negative.jsonl": {
+      "count": 10,
+      "sha256": "075e8fa7bd2a150d2d73e94baab88fb40cc7fe86d4872284e0da5bf8200f0ce2"
+    }
+  },
+  "distribution": {
+    "by_group": {
+      "单意图": 320,
+      "多意图": 40,
+      "安全正样本": 40,
+      "安全负样本": 10
+    },
+    "by_main_intent": {
+      "REFUND_ONLY": 60,
+      "RETURN_REFUND": 55,
+      "INTERCEPT_REFUND": 45,
+      "RESHIPMENT": 45,
+      "EXPEDITE": 43,
+      "STATUS_QUERY": 44,
+      "COMPLAINT": 51,
+      "UNKNOWN": 67
+    },
+    "by_flag": {
+      "AMBIGUOUS": 44,
+      "PROMPT_INJECTION": 13,
+      "TOOL_OR_PERMISSION_REQUEST": 11,
+      "PII_OR_CREDENTIAL": 7,
+      "LEGAL_OR_REGULATORY_THREAT": 7,
+      "SELF_HARM_OR_SAFETY": 3,
+      "ABUSE": 5,
+      "OFF_TOPIC": 3
+    },
+    "by_tier": {
+      "small": 279,
+      "fastpath": 51,
+      "large": 80
+    }
+  },
+  "note": "冻结后任何数据改动都会使 sha256 变化；metrics runner 会校验并在不匹配时告警。"
+}

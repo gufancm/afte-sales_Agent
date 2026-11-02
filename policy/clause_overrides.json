@@ -1,0 +1,10 @@
+{
+  "_comment": "人工清洗出口：按 doc_id 覆盖条款解析结果。复核表（政策切分复核.csv）里 keep=false 的条款在此 drop；需要改判例外的加 is_exception。",
+  "_usage": "scripts/preview_chunks.py --overrides policy/clause_overrides.json ... 或 build_policy_index.py 直接读取本文件。",
+  "docs": {
+    "jd_example": {
+      "CL-JDexample-PRE": {"drop": true},
+      "CL-JDexample-A7": {"is_exception": true}
+    }
+  }
+}

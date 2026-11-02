@@ -1,0 +1,31 @@
+{
+  "version": "task-success-live/2",
+  "date": "2026-10-30",
+  "data": "task_success_v2.v2.5.jsonl",
+  "workflow_success": 1,
+  "total": 1,
+  "workflow_rate": 1.0,
+  "business_success": 0,
+  "business_applicable": 0,
+  "business_rate": 0.0,
+  "approval_resume_ok": 0,
+  "approval_total": 0,
+  "dangerous_releases": 0,
+  "rows": [
+    {
+      "case_id": "TS-098",
+      "workflow": "PASS",
+      "business": "N/A",
+      "detail": "MANUAL",
+      "ticket_id": "2f67f1f7-6083-4998-b582-06f99016c1b0",
+      "response_type": "MANUAL",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 29780,
+      "policy_decision": "MANUAL",
+      "reason_code": "AMOUNT_EXCEEDS_AUTO_THRESHOLD",
+      "rule_ids": "R-JD-COMP-LATE-001",
+      "plan_hash": "",
+      "commands": ""
+    }
+  ]
+}

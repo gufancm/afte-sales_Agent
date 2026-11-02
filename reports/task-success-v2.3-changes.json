@@ -1,0 +1,45 @@
+{
+ "version": "2.3.0",
+ "date": "2026-10-29",
+ "parent": "2.2.0",
+ "principle": "本轮不改金标、不改数据集；只修计划身份、幂等键、审批隔离与资格咨询路由",
+ "dataset_unchanged": true,
+ "code": [
+  {"file": "app/graph/nodes.py", "change": "plan_hash 显式包含 order_id；退款/命令幂等键加入 tenant+ticket+操作类型+plan_hash",
+   "why": "退款与退货退款共用注册表模板，旧键会静默吞掉第二条命令；跨租户/跨计划必须区分"},
+  {"file": "app/db/persistence.py", "change": "ensure_approval_task 冲突目标与回查带 ticket_id；load_and_verify_approval 返回 ticket_id",
+   "why": "旧唯一键 (tenant, plan_hash) 会让不同工单复用已通过的审批，等于免审批执行"},
+  {"file": "migrations/sql/0022_approval_ticket_scope.sql", "change": "唯一索引改为 (tenant_id, ticket_id, plan_hash)",
+   "why": "同上，由数据库层保证工单隔离"},
+  {"file": "app/graph/nodes.py", "change": "hitl_review 增加 APPROVAL_TICKET_MISMATCH 校验",
+   "why": "纵深防御：即使传入别的人工单审批 ID，也不能通过"},
+  {"file": "app/graph/eligibility.py", "change": "新增资格咨询确定性识别（行事语行为 speech_act + subject）",
+   "why": "“还能换货吗”是问资格，不是要求执行；避免 LLM 在 RETURN_REFUND/RESHIPMENT 间抖动"},
+  {"file": "app/graph/build.py", "change": "policy_evidence 增加 answer 分支",
+   "why": "资格咨询不进入 planner/prepare/risk/command，直接出结论"},
+  {"file": "tests/eval/run_intent_metrics.py", "change": "评测与线上同口径应用资格咨询覆盖",
+   "why": "否则 E1 指标反映的不是线上行为"},
+  {"file": "scripts/calibrate_transform_gate.py", "change": "默认不再将 Gold 条款喂给门控；gold 改为显式开关",
+   "why": "运行时 discover() 拿不到 required_clause_ids，原 1.69% 触发率属于数据泄漏"}
+ ],
+ "results": {
+  "pytest": "234 passed",
+  "e1_410": {"accuracy": 0.9805, "macro_f1": 0.9811, "dangerous_release": 0.0,
+             "note": "与 10-27 完全一致，无回归"},
+  "task_success_offline": "100/100",
+  "ts060_live": "PASS / DENIED / 0 commands",
+  "ts096_live": "PASS / 1 approval / 1 refund_request / 1 command",
+  "concurrent_duplicate": {"approvals": 1, "distinct_plan_hash": 1, "refund_requests": 1,
+                           "commands": 1, "status": "CONFIRMED", "plan_rows": 2},
+  "cross_ticket": {"new_approval_status": "PENDING", "inherited_approved": false},
+  "live_sample_10": {"workflow": "10/10", "business": "1/1", "dangerous_releases": 0},
+  "transform_gate_runtime": {"queries": 118, "triggered": 0, "trigger_rate": 0.0,
+                             "note": "旧 1.69% 由 Gold 条款触发，运行时口径为 0"}
+ },
+ "known_gaps": [
+  "同一工单重复提交仍会留下 2 行同指纹 action_plans（不影响三层幂等）",
+  "查询变换门控阈值待定：运行时 0 触发，需要与 E8 检索评测一起决策",
+  "烘焙补发超窗仍需 claim.request_kind 或 EXCHANGE 动作（政策 v3）",
+  "TS-003/011/012 仍需 seal_broken / activated / installation_done 事实"
+ ]
+}

@@ -1,0 +1,3 @@
+﻿case_id,workflow,business,detail,ticket_id,response_type,run_status,elapsed_ms,policy_decision,reason_code,rule_ids,plan_hash,commands
+TS-006,PASS,N/A,DENIED,a7249b12-3306-4353-8b59-739b544f624c,DENIED,COMPLETED,26500,DENY,NO_REASON_WINDOW_EXPIRED,R-JD-NR-WINDOW-EXPIRED-001,,
+TS-015,PASS,N/A,DENIED,e8ec7c08-3112-4f4b-b7b8-2184b033a452,DENIED,COMPLETED,29108,DENY,NO_REASON_SEALED_EXEMPT,R-JD-NR-DENY-SEALED-001,,

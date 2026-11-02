@@ -1,0 +1,122 @@
+# docker-compose.yml — 逻辑组件（开发/联调基线）
+# 组件：postgres(pgvector) / redis / migrate(一次性) / api / worker / mcp-mock
+# 业务角色与权限见 migrations/sql/0009_roles.sql（LLD §19.2）。
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: agent_user
+      POSTGRES_PASSWORD: change-me
+      POSTGRES_DB: aftersale
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_user -d aftersale"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # 本地 BGE-M3 向量服务（OpenAI 兼容 /v1/embeddings）
+  # 权重随宿主机目录挂载，容器不联网；api/worker 通过 http://embed:7997/v1 调用
+  embed:
+    build:
+      context: .
+      dockerfile: Dockerfile.embed
+    command: ["python", "scripts/serve_embedding.py", "--model-path", "/models/bge-m3", "--host", "0.0.0.0", "--port", "7997", "--device", "cpu", "--dtype", "float32", "--api-key", "local-dev-key"]
+    volumes:
+      - "E:/agent/models/bge-m3:/models/bge-m3:ro"
+    ports: ["7997:7997"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7997/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 300s
+    restart: unless-stopped
+  # 本地 BGE Reranker（cross-encoder，/rerank）；权重随宿主机目录挂载，容器不联网
+  rerank:
+    build:
+      context: .
+      dockerfile: Dockerfile.embed
+    command: ["python", "scripts/serve_reranker.py", "--model-path", "/models/bge-reranker-v2-m3", "--host", "0.0.0.0", "--port", "7998", "--device", "cpu", "--dtype", "float32", "--api-key", "local-dev-key"]
+    volumes:
+      - "E:/agent/models/bge-reranker-v2-m3:/models/bge-reranker-v2-m3:ro"
+    ports: ["7998:7998"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7998/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 300s
+    restart: unless-stopped
+
+  # 一次性迁移：以超级用户角色应用 migrations/sql（含 RLS 与业务角色创建）
+  migrate:
+    build: .
+    command: python scripts/migrate.py
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://agent_user:change-me@postgres:5432/aftersale
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: "no"
+
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    env_file: [.env]
+    environment:
+      # HITL 暂停点落 Postgres：容器重启/多副本后仍可 Command(resume=...) 续跑
+      CHECKPOINT_BACKEND: postgres
+      CHECKPOINT_SETUP_ON_START: "true"
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_started}
+      migrate: {condition: service_completed_successfully}
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # Saga Worker：唯一外部写执行者 + 对账回查（§18.10 / §19.1.6）
+  worker:
+    build: .
+    command: python scripts/run_worker.py
+    env_file: [.env]
+    depends_on:
+      postgres: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+    restart: unless-stopped
+
+  # 外部系统 Mock（OMS/TMS/Finance），仅联调用；同一进程按路径区分
+  mcp-mock:
+    build: .
+    command: uvicorn app.mcp.mocks.server:app --host 0.0.0.0 --port 9100
+    env_file: [.env]
+    environment:
+      # 仅开发联调：回归集 100 条 + 端到端留出集 40 条（合并 seed）
+      MCP_MOCK_SEED_FILE: /app/tests/eval/data/holdout/mock_seed_all.json
+    ports: ["9100:9100"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9100/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,0 +1,46 @@
+{
+  "version": "task-success-live/2",
+  "date": "2026-10-30",
+  "data": "task_success_v2.v2.5.jsonl",
+  "workflow_success": 2,
+  "total": 2,
+  "workflow_rate": 1.0,
+  "business_success": 0,
+  "business_applicable": 0,
+  "business_rate": 0.0,
+  "approval_resume_ok": 0,
+  "approval_total": 0,
+  "dangerous_releases": 0,
+  "rows": [
+    {
+      "case_id": "TS-006",
+      "workflow": "PASS",
+      "business": "N/A",
+      "detail": "DENIED",
+      "ticket_id": "a7249b12-3306-4353-8b59-739b544f624c",
+      "response_type": "DENIED",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 26500,
+      "policy_decision": "DENY",
+      "reason_code": "NO_REASON_WINDOW_EXPIRED",
+      "rule_ids": "R-JD-NR-WINDOW-EXPIRED-001",
+      "plan_hash": "",
+      "commands": ""
+    },
+    {
+      "case_id": "TS-015",
+      "workflow": "PASS",
+      "business": "N/A",
+      "detail": "DENIED",
+      "ticket_id": "e8ec7c08-3112-4f4b-b7b8-2184b033a452",
+      "response_type": "DENIED",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 29108,
+      "policy_decision": "DENY",
+      "reason_code": "NO_REASON_SEALED_EXEMPT",
+      "rule_ids": "R-JD-NR-DENY-SEALED-001",
+      "plan_hash": "",
+      "commands": ""
+    }
+  ]
+}

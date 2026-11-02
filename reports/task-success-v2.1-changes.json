@@ -1,0 +1,146 @@
+{
+ "version": "2.1.0",
+ "count": 20,
+ "cases": {
+  "TS-004": {
+   "note": "S16：与描述不符属质量问题，应承担退换货；仅退款不在该规则授权动作内",
+   "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+   "response_type": "NEED_INFO",
+   "reason_code": "QUALITY_RETURN_WINDOW",
+   "kind": "corrected_v2_1"
+  },
+  "TS-024": {
+   "note": "S16 质量问题需核实责任；商品未签收无法验货，转人工，不自动维修/退款",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "IN_TRANSIT_QUALITY_REVIEW",
+   "kind": "corrected_v2_1"
+  },
+  "TS-025": {
+   "note": "S18/S22：少件/错件属签收异常，需人工核实，不自动补发或退款",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "SIGN_ABNORMAL_REVIEW",
+   "kind": "corrected_v2_1"
+  },
+  "TS-026": {
+   "note": "S16 质量问题需核实责任；商品未签收无法验货，转人工，不自动维修/退款",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "IN_TRANSIT_QUALITY_REVIEW",
+   "kind": "corrected_v2_1"
+  },
+  "TS-031": {
+   "note": "S4 原文只规定“换货”，烘焙不存在退货退款条款；A1/S4 要求人工核实，退货退款诉求按人工复核处理",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "FRESH_BAKERY_EXCHANGE",
+   "kind": "corrected_v2_1"
+  },
+  "TS-032": {
+   "note": "S4 原文只规定“换货”，烘焙不存在退货退款条款；A1/S4 要求人工核实，退货退款诉求按人工复核处理",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "FRESH_BAKERY_EXCHANGE",
+   "kind": "corrected_v2_1"
+  },
+  "TS-033": {
+   "note": "S4 原文只规定“换货”，烘焙不存在退货退款条款；A1/S4 要求人工核实，退货退款诉求按人工复核处理",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "FRESH_BAKERY_EXCHANGE",
+   "kind": "corrected_v2_1"
+  },
+  "TS-034": {
+   "note": "S4 原文只规定“换货”，烘焙不存在退货退款条款；A1/S4 要求人工核实，退货退款诉求按人工复核处理",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": "FRESH_BAKERY_EXCHANGE",
+   "kind": "corrected_v2_1"
+  },
+  "TS-056": {
+   "note": "S4 只规定“可申请换货”，并要有包装未拆封+生产日期凭证；换货申请与换货履约（补发新品）是两件事，系统无换货动作，资格成立也不自动建补发单，转人工安排",
+   "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+   "response_type": "MANUAL",
+   "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+   "kind": "corrected_v2_1"
+  },
+  "TS-057": {
+   "note": "S4 只规定“可申请换货”，并要有包装未拆封+生产日期凭证；换货申请与换货履约（补发新品）是两件事，系统无换货动作，资格成立也不自动建补发单，转人工安排",
+   "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+   "response_type": "MANUAL",
+   "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+   "kind": "corrected_v2_1"
+  },
+  "TS-058": {
+   "note": "S4 只规定“可申请换货”，并要有包装未拆封+生产日期凭证；换货申请与换货履约（补发新品）是两件事，系统无换货动作，资格成立也不自动建补发单，转人工安排",
+   "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+   "response_type": "MANUAL",
+   "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+   "kind": "corrected_v2_1"
+  },
+  "TS-059": {
+   "note": "S4 只规定“可申请换货”，并要有包装未拆封+生产日期凭证；换货申请与换货履约（补发新品）是两件事，系统无换货动作，资格成立也不自动建补发单，转人工安排",
+   "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+   "response_type": "MANUAL",
+   "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+   "kind": "corrected_v2_1"
+  },
+  "TS-060": {
+   "note": "S4：换货申请限签收次日起 15 个自然日内。用户是在咨询资格（ELIGIBILITY_QUERY），没有要求立即建单，因此 requested_action=null；超窗按拒绝答复",
+   "gate_reason": "",
+   "response_type": "DENIED",
+   "reason_code": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+   "kind": "corrected_v2_1"
+  },
+  "TS-061": {
+   "note": "S4：换货申请限签收次日起 15 个自然日内。用户是在咨询资格（ELIGIBILITY_QUERY），没有要求立即建单，因此 requested_action=null；超窗按拒绝答复",
+   "gate_reason": "",
+   "response_type": "DENIED",
+   "reason_code": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+   "kind": "corrected_v2_1"
+  },
+  "TS-088": {
+   "note": "E1 口径：仅辱骂、无追责诉求 -> 主意图 UNKNOWN；ABUSE 旗标 -> MANUAL",
+   "gate_reason": "",
+   "response_type": "MANUAL",
+   "reason_code": null,
+   "kind": "corrected_v2_1"
+  },
+  "TS-091": {
+   "note": "首轮缺订单号 -> 澄清；次轮补齐后政策资格成立，但仅退款动作未获授权，需用户确认是否接受退货退款等替代方案",
+   "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+   "response_type": "NEED_INFO",
+   "reason_code": "NO_REASON_WITHIN_7D",
+   "kind": "corrected_v2_1"
+  },
+  "TS-096": {
+   "note": "未发货取消退款（S3）。plan_hash 由业务内容计算（不含随机 policy_decision_id），重复提交应复用同一审批与同一退款申请，最终只有 1 条命令",
+   "gate_reason": "",
+   "response_type": "PROCESSING",
+   "reason_code": "UNSHIPPED_CANCEL_REFUND",
+   "kind": "corrected_v2_1"
+  },
+  "TS-101": {
+   "note": "T1 第1类：定制/定做类商品不适用 7 天无理由（S5#3 补充说明）",
+   "gate_reason": "",
+   "response_type": "DENIED",
+   "reason_code": "NO_REASON_CUSTOM_EXEMPT",
+   "kind": "added_v2_1"
+  },
+  "TS-102": {
+   "note": "T1 第3类：一次性密封外包装未拆封的图书/音像制品不适用 7 天无理由",
+   "gate_reason": "",
+   "response_type": "DENIED",
+   "reason_code": "NO_REASON_SEALED_EXEMPT",
+   "kind": "added_v2_1"
+  },
+  "TS-103": {
+   "note": "T1 第2类：鲜活易腐类商品不适用 7 天无理由",
+   "gate_reason": "",
+   "response_type": "DENIED",
+   "reason_code": "NO_REASON_FRESH_EXEMPT",
+   "kind": "added_v2_1"
+  }
+ }
+}

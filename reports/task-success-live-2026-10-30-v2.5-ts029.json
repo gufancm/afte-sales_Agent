@@ -1,0 +1,31 @@
+{
+  "version": "task-success-live/2",
+  "date": "2026-10-30",
+  "data": "task_success_v2.v2.5.jsonl",
+  "workflow_success": 1,
+  "total": 1,
+  "workflow_rate": 1.0,
+  "business_success": 1,
+  "business_applicable": 1,
+  "business_rate": 1.0,
+  "approval_resume_ok": 1,
+  "approval_total": 1,
+  "dangerous_releases": 0,
+  "rows": [
+    {
+      "case_id": "TS-029",
+      "workflow": "PASS",
+      "business": "PASS",
+      "detail": "PROCESSING",
+      "ticket_id": "4ae2ef6a-de87-4aa9-8dcc-531794277059",
+      "response_type": "PROCESSING",
+      "run_status": "WAITING_EXTERNAL",
+      "elapsed_ms": 24266,
+      "policy_decision": "ALLOW",
+      "reason_code": "EBIKE_MOTOR_RETURN",
+      "rule_ids": "R-JD-EBIKE-3BAO-001",
+      "plan_hash": "sha256:9b5efac8d434f509eeec4dc072f8bde9933ff13896fc3ba14023a2e202a03130",
+      "commands": "REQUEST_RETURN_REFUND:CONFIRMED"
+    }
+  ]
+}

@@ -1,0 +1,1111 @@
+{
+  "version": "2026.10-jd",
+  "tenant": "tenant_demo",
+  "corpus": "京东开放平台官方规则（17 份 PDF，见 policy/clauses_jd.json）",
+  "note": "真实平台语料为唯一事实源；决策由确定性引擎求出，不调用 LLM。rules=进入 PolicyEngine 的消费者裁决规则；catalog=非裁决清单（服务资格/商家合规），仅用于覆盖度审计，不参与求值。语料确无对应政策的诉求（生鲜破损赔付/服饰质量/图书质量/预售/价保）不设规则→由 NO_APPLICABLE_POLICY 转人工。",
+  "documents": [
+    {
+      "doc_id": "jd_1013329543295012864",
+      "title": "计价黄金克重补差质量问题售后服务管理规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1023830024685490176",
+      "title": "京东开放平台180天只换不修保险服务平台规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1023834451186159616",
+      "title": "京东开放平台电器延保险服务平台规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1148155761021554688",
+      "title": "京东开放平台新鲜烘焙服务规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1189815359696408576",
+      "title": "京东开放平台家电家居生活品类商品维修服务相关类目服务规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1190896203588571136",
+      "title": "京东开放平台货源平台供应商发货管理规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1206154529616302080",
+      "title": "京东开放平台恶意占库存细则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_1244115246973587456",
+      "title": "京东开放平台隐私发货规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_2595",
+      "title": "京东开放平台售后服务管理规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_3724",
+      "title": "京东开放平台安装问题纠纷处理标准",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_3727",
+      "title": "京东开放平台运费问题纠纷处理标准",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_3836",
+      "title": "京东开放平台电动车类目售后服务管理规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_4268",
+      "title": "京东开放平台7天无理由退货规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_590903538377428992",
+      "title": "京东开放平台取消订单服务管理规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_616214789504503808",
+      "title": "京东开放平台闪电退款服务规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_845914392943005696",
+      "title": "京东开放平台上门换新服务规则",
+      "version": "v1"
+    },
+    {
+      "doc_id": "jd_902003809503547392",
+      "title": "京东开放平台恶意倒卖纠纷处理标准",
+      "version": "v1"
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "R-JD-NR-DENY-FRESH-001",
+      "version": "2026.10-jd",
+      "priority": 130,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "FRESH"
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "NO_REASON_FRESH_EXEMPT",
+      "required_clause_ids": [
+        "CL-JD4268-T1"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "鲜活易腐类不适用 7 天无理由",
+      "stage": 10,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-NR-DENY-CUSTOM-001",
+      "version": "2026.10-jd",
+      "priority": 130,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "CUSTOM"
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "NO_REASON_CUSTOM_EXEMPT",
+      "required_clause_ids": [
+        "CL-JD4268-T1",
+        "CL-JD4268-S5#3"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "消费者定作不适用 7 天无理由",
+      "stage": 10,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-NR-DENY-DIGITAL-001",
+      "version": "2026.10-jd",
+      "priority": 130,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.category",
+          "op": "in",
+          "value": [
+            "DIGITAL",
+            "APPLIANCE",
+            "VIRTUAL"
+          ]
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "NO_REASON_DIGITAL_EXEMPT",
+      "required_clause_ids": [
+        "CL-JD4268-T1#2",
+        "CL-JD4268-S5"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "拆封/激活数字化商品不适用 7 天无理由",
+      "stage": 10,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-NR-DENY-SEALED-001",
+      "version": "2026.10-jd",
+      "priority": 130,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "BOOK_MEDIA"
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "NO_REASON_SEALED_EXEMPT",
+      "required_clause_ids": [
+        "CL-JD4268-S4#2",
+        "CL-JD4268-S5"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "一次性密封破损商品不适用 7 天无理由",
+      "stage": 10,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-INTERCEPT-DELIVERED-DENY-001",
+      "version": "2026.10-jd",
+      "priority": 130,
+      "when": [
+        {
+          "fact": "logistics.parcel_status",
+          "op": "in",
+          "value": [
+            "DELIVERED",
+            "SIGNED"
+          ]
+        },
+        {
+          "fact": "intent",
+          "op": "eq",
+          "value": "INTERCEPT_REFUND"
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "INTERCEPT_ALREADY_DELIVERED",
+      "required_clause_ids": [
+        "CL-JD590903538377428992-S5"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "已出库/已签收订单不适用拦截",
+      "stage": 20,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-GOLD-WEIGHT-001",
+      "version": "2026.10-jd",
+      "priority": 118,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "in",
+          "value": [
+            "GOLD",
+            "JEWELRY"
+          ]
+        },
+        {
+          "fact": "claim.reason_code",
+          "op": "eq",
+          "value": "WEIGHT_DIFF"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "GOLD_WEIGHT_COMPENSATION",
+      "required_clause_ids": [
+        "CL-JD1013329543295012864-CH1",
+        "CL-JD1013329543295012864-S4"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "计价黄金克重补差（以签收克重与页面标识克重比对）",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_REFUND_ONLY"
+      ]
+    },
+    {
+      "rule_id": "R-JD-GOLD-QUALITY-001",
+      "version": "2026.10-jd",
+      "priority": 116,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "in",
+          "value": [
+            "GOLD",
+            "JEWELRY"
+          ]
+        },
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "QUALITY_DEFECT",
+            "DAMAGED",
+            "WRONG_ITEM",
+            "MISSING_ITEM",
+            "NOT_AS_DESCRIBED"
+          ]
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "GOLD_QUALITY_RETURN",
+      "required_clause_ids": [
+        "CL-JD1013329543295012864-CH3"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "贵金属质量问题的退换修",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_RETURN_REFUND"
+      ]
+    },
+    {
+      "rule_id": "R-JD-EBIKE-3BAO-001",
+      "version": "2026.10-jd",
+      "priority": 114,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "EBIKE"
+        },
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "QUALITY_DEFECT",
+            "DAMAGED",
+            "WRONG_ITEM",
+            "MISSING_ITEM",
+            "NOT_AS_DESCRIBED"
+          ]
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "EBIKE_MOTOR_RETURN",
+      "required_clause_ids": [
+        "CL-JD3836-CH2",
+        "CL-JD3836-CH2#2"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "电动车类目三包（电机等主要部件）",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_RETURN_REFUND"
+      ]
+    },
+    {
+      "rule_id": "R-JD-Q-RETURN-001",
+      "version": "2026.10-jd",
+      "priority": 110,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "QUALITY_DEFECT",
+            "DAMAGED",
+            "WRONG_ITEM",
+            "MISSING_ITEM",
+            "NOT_AS_DESCRIBED"
+          ]
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "QUALITY_RETURN_WINDOW",
+      "required_clause_ids": [
+        "CL-JD2595-S16",
+        "CL-JD4268-A5"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "签收后质量问题退换修",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_RETURN_REFUND",
+        "CREATE_RESHIPMENT"
+      ]
+    },
+    {
+      "rule_id": "R-JD-Q-REPAIR-001",
+      "version": "2026.10-jd",
+      "priority": 105,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "QUALITY_DEFECT",
+            "DAMAGED",
+            "NOT_AS_DESCRIBED"
+          ]
+        },
+        {
+          "fact": "intent",
+          "op": "eq",
+          "value": "RETURN_REFUND"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "QUALITY_REPAIR",
+      "required_clause_ids": [
+        "CL-JD2595-S15",
+        "CL-JD2595-S16"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "质量问题维修（返修）；少件/错件属签收异常，不由本条接管",
+      "stage": 30,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-NR-ALLOW-001",
+      "version": "2026.10-jd",
+      "priority": 100,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "NO_REASON_RETURN_OK",
+      "required_clause_ids": [
+        "CL-JD4268-A3",
+        "CL-JD4268-A5",
+        "CL-JD4268-S4"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "7 天无理由退货（未被豁免品类）",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_RETURN_REFUND"
+      ]
+    },
+    {
+      "rule_id": "R-JD-CANCEL-UNSHIPPED-001",
+      "version": "2026.10-jd",
+      "priority": 100,
+      "when": [
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "PAID_UNSHIPPED"
+        },
+        {
+          "fact": "intent",
+          "op": "eq",
+          "value": "REFUND_ONLY"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "UNSHIPPED_CANCEL_REFUND",
+      "required_clause_ids": [
+        "CL-JD590903538377428992-S3#2",
+        "CL-JD590903538377428992-S3"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "未出库订单取消退款",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_REFUND_ONLY"
+      ]
+    },
+    {
+      "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+      "version": "2026.10-jd",
+      "priority": 100,
+      "when": [
+        {
+          "fact": "logistics.parcel_status",
+          "op": "eq",
+          "value": "IN_TRANSIT"
+        },
+        {
+          "fact": "intent",
+          "op": "eq",
+          "value": "INTERCEPT_REFUND"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "INTERCEPT_OK",
+      "required_clause_ids": [
+        "CL-JD590903538377428992-A9#2"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "在途包裹拦截",
+      "stage": 30,
+      "allowed_actions": [
+        "INTERCEPT_PARCEL"
+      ]
+    },
+    {
+      "rule_id": "R-JD-COMP-LATE-001",
+      "version": "2026.10-jd",
+      "priority": 96,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "eq",
+          "value": "LATE_DELIVERY"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "LATE_DELIVERY_COMPENSATION",
+      "required_clause_ids": [
+        "CL-JD1190896203588571136-S13",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "amount_cap_minor": 2000,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "延迟发货违约金（封顶 20 元）",
+      "stage": 30,
+      "amount_cap_type": "AUTO_EXEC_THRESHOLD",
+      "allowed_actions": [
+        "REQUEST_REFUND_ONLY"
+      ]
+    },
+    {
+      "rule_id": "R-JD-COMP-OOS-001",
+      "version": "2026.10-jd",
+      "priority": 96,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "OUT_OF_STOCK",
+            "FALSE_SHIPMENT"
+          ]
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "OUT_OF_STOCK_COMPENSATION",
+      "required_clause_ids": [
+        "CL-JD1190896203588571136-S17",
+        "CL-JD1190896203588571136-S20"
+      ],
+      "amount_cap_minor": 2000,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "缺货/虚假发货违约金（封顶 20 元）",
+      "stage": 30,
+      "amount_cap_type": "AUTO_EXEC_THRESHOLD",
+      "allowed_actions": [
+        "REQUEST_REFUND_ONLY"
+      ]
+    },
+    {
+      "rule_id": "R-JD-CANCEL-SPECIAL-REVIEW-001",
+      "version": "2026.10-jd",
+      "priority": 105,
+      "when": [
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "PAID_UNSHIPPED"
+        },
+        {
+          "fact": "order.category",
+          "op": "in",
+          "value": [
+            "FRESH",
+            "CUSTOM",
+            "VIRTUAL"
+          ]
+        },
+        {
+          "fact": "intent",
+          "op": "in",
+          "value": [
+            "REFUND_ONLY"
+          ]
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "SPECIAL_CANCEL_REVIEW",
+      "required_clause_ids": [
+        "CL-JD590903538377428992-A9",
+        "CL-JD590903538377428992-S3#2"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "生鲜/定制/虚拟等特殊类目未出库取消需人工确认",
+      "stage": 10,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-COMP-DELIVERY-ABNORMAL-001",
+      "version": "2026.10-jd",
+      "priority": 95,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "eq",
+          "value": "DELIVERY_ABNORMAL"
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "DELIVERY_ABNORMAL_REVIEW",
+      "required_clause_ids": [
+        "CL-JD1190896203588571136-S14",
+        "CL-JD1190896203588571136-S21"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "配送/揽收异常需人工核实",
+      "stage": 40,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-INSTALL-DISPUTE-001",
+      "version": "2026.10-jd",
+      "priority": 95,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "INSTALL_LATE",
+            "INSTALL_FEE",
+            "INSTALL_DEFECT"
+          ]
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "INSTALL_DISPUTE_REVIEW",
+      "required_clause_ids": [
+        "CL-JD3724-A5",
+        "CL-JD3724-A7",
+        "CL-JD3724-A9"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "安装问题纠纷按责任判定",
+      "stage": 40,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-FRESH-BAKERY-001",
+      "version": "2026.10-jd",
+      "priority": 95,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "BAKERY"
+        },
+        {
+          "fact": "claim.reason_code",
+          "op": "eq",
+          "value": "DATE_DISSATISFIED"
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "FRESH_BAKERY_EXCHANGE",
+      "required_clause_ids": [
+        "CL-JD1148155761021554688-A1",
+        "CL-JD1148155761021554688-S4"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "新鲜烘焙类生产/签收日期不符，需人工核实后换货",
+      "stage": 40,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-COMP-SIGN-ABNORMAL-001",
+      "version": "2026.10-jd",
+      "priority": 90,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "MISSING_ITEM",
+            "WRONG_ITEM"
+          ]
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "SIGN_ABNORMAL_REVIEW",
+      "required_clause_ids": [
+        "CL-JD1190896203588571136-S18",
+        "CL-JD1190896203588571136-S22"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "签收异常（少件/错件）需人工核实后处理",
+      "stage": 40,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-NR-WINDOW-OK-001",
+      "version": "2026.10-jd",
+      "priority": 101,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        },
+        {
+          "fact": "claim.day_index_signed",
+          "op": "lte",
+          "value": 7
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "NO_REASON_WITHIN_7D",
+      "required_clause_ids": [
+        "CL-JD4268-A3",
+        "CL-JD4268-S4"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "7 天无理由：自签收之日起 7 个自然日内（CL-JD4268-A3）",
+      "stage": 30,
+      "allowed_actions": [
+        "REQUEST_RETURN_REFUND"
+      ]
+    },
+    {
+      "rule_id": "R-JD-NR-WINDOW-EXPIRED-001",
+      "version": "2026.10-jd",
+      "priority": 120,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "NO_LONGER_NEEDED",
+            "SIZE_ISSUE",
+            "COLOR_MISMATCH"
+          ]
+        },
+        {
+          "fact": "order.status",
+          "op": "eq",
+          "value": "DELIVERED"
+        },
+        {
+          "fact": "claim.day_index_signed",
+          "op": "gt",
+          "value": 7
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "NO_REASON_WINDOW_EXPIRED",
+      "required_clause_ids": [
+        "CL-JD4268-A3"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "超出 7 个自然日，不适用 7 天无理由（CL-JD4268-A3）",
+      "stage": 20,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+      "version": "2026.10-jd",
+      "priority": 96,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "BAKERY"
+        },
+        {
+          "fact": "claim.reason_code",
+          "op": "eq",
+          "value": "DATE_DISSATISFIED"
+        },
+        {
+          "fact": "claim.day_index_next",
+          "op": "lte",
+          "value": 15
+        },
+        {
+          "fact": "intent",
+          "op": "eq",
+          "value": "RESHIPMENT"
+        }
+      ],
+      "decision": "ALLOW",
+      "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+      "required_clause_ids": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "新鲜烘焙：签收次日起 15 个自然日内可申请换货（S4），需包装未拆封图片+生产日期图片。换货申请≠补发履约：系统无换货动作，交人工安排，不自动创建补发单",
+      "stage": 30,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+      "version": "2026.10-jd",
+      "priority": 117,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "BAKERY"
+        },
+        {
+          "fact": "claim.reason_code",
+          "op": "eq",
+          "value": "DATE_DISSATISFIED"
+        },
+        {
+          "fact": "claim.day_index_next",
+          "op": "gt",
+          "value": 15
+        },
+        {
+          "fact": "intent",
+          "op": "eq",
+          "value": "RESHIPMENT"
+        }
+      ],
+      "decision": "DENY",
+      "reason_code": "BAKERY_EXCHANGE_WINDOW_EXPIRED",
+      "required_clause_ids": [
+        "CL-JD1148155761021554688-S4"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "超出 15 个自然日，不符合新鲜烘焙换货条件（S4）；S4 原文只规定“换货”，退货退款不适用本条",
+      "stage": 20,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-CATEGORY-UNKNOWN-001",
+      "version": "2026.10-jd",
+      "priority": 128,
+      "when": [
+        {
+          "fact": "order.category",
+          "op": "eq",
+          "value": "UNKNOWN"
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "CATEGORY_UNKNOWN_REVIEW",
+      "required_clause_ids": [],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "兜底：品类无法归一（拼写/新品类）时一律转人工，不静默走通用规则；无对应条款",
+      "stage": 10,
+      "allowed_actions": []
+    },
+    {
+      "rule_id": "R-JD-INTRANSIT-QUALITY-001",
+      "version": "2026.10-jd",
+      "priority": 106,
+      "when": [
+        {
+          "fact": "claim.reason_code",
+          "op": "in",
+          "value": [
+            "QUALITY_DEFECT",
+            "DAMAGED",
+            "NOT_AS_DESCRIBED"
+          ]
+        },
+        {
+          "fact": "order.status",
+          "op": "in",
+          "value": [
+            "PAID_SHIPPED",
+            "SHIPPED"
+          ]
+        }
+      ],
+      "decision": "MANUAL",
+      "reason_code": "IN_TRANSIT_QUALITY_REVIEW",
+      "required_clause_ids": [
+        "CL-JD2595-S16"
+      ],
+      "amount_cap_minor": null,
+      "scope": {},
+      "status": "PUBLISHED",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "note": "未签收的质量/破损争议无法现场验货，S16 需核实责任，转人工（不得直接维修或退款）；少件/错件属签收异常（S18/S22），不由本条接管",
+      "stage": 10,
+      "allowed_actions": []
+    }
+  ],
+  "catalog": [
+    {
+      "item_id": "R-JD-NR-DENY-INTACT-001",
+      "decision": "DENY",
+      "reason_code": "ITEM_NOT_INTACT",
+      "required_clause_ids": [
+        "CL-JD4268-S5#4"
+      ],
+      "note": "吊牌/防伪标识被拆除、穿戴污损的服饰不支持 7 天无理由；需新增事实 order.item_intact 才能自动判定"
+    },
+    {
+      "item_id": "R-JD-FLASH-REFUND-001",
+      "decision": "MANUAL",
+      "reason_code": "FLASH_REFUND_ELIGIBILITY",
+      "required_clause_ids": [
+        "CL-JD616214789504503808-CH3",
+        "CL-JD616214789504503808-S4"
+      ],
+      "note": "闪电退款为服务资格，需实付金额/信誉/服务标识，v1 不自动判定"
+    },
+    {
+      "item_id": "R-JD-DOOR-EXCHANGE-001",
+      "decision": "MANUAL",
+      "reason_code": "DOOR_EXCHANGE_ELIGIBILITY",
+      "required_clause_ids": [
+        "CL-JD845914392943005696-CH3",
+        "CL-JD845914392943005696-S3"
+      ],
+      "note": "上门换新为服务资格，需服务标识/信誉/金额上限"
+    },
+    {
+      "item_id": "R-JD-REPLACE-ONLY-001",
+      "decision": "MANUAL",
+      "reason_code": "REPLACE_ONLY_ELIGIBILITY",
+      "required_clause_ids": [
+        "CL-JD1023830024685490176-A1",
+        "CL-JD1023830024685490176-S7"
+      ],
+      "note": "180 天只换不修需订单完成天数（第 8-180 天）与类目"
+    },
+    {
+      "item_id": "R-JD-EXT-WARRANTY-001",
+      "decision": "MANUAL",
+      "reason_code": "EXTENDED_WARRANTY_ELIGIBILITY",
+      "required_clause_ids": [
+        "CL-JD1023834451186159616-A1",
+        "CL-JD1023834451186159616-A2"
+      ],
+      "note": "电器延保需延保期与服务标识"
+    },
+    {
+      "item_id": "R-JD-HOME-REPAIR-001",
+      "decision": "MANUAL",
+      "reason_code": "HOME_REPAIR_SERVICE_REVIEW",
+      "required_clause_ids": [
+        "CL-JD1189815359696408576-S3",
+        "CL-JD1189815359696408576-S12"
+      ],
+      "note": "家电家居维修服务纠纷按类目服务规范处理"
+    },
+    {
+      "item_id": "R-JD-FREIGHT-BUYER-001",
+      "decision": "ADVISORY",
+      "reason_code": "FREIGHT_BUYER_PAYS",
+      "required_clause_ids": [
+        "CL-JD4268-A6",
+        "CL-JD3727-A3#2"
+      ],
+      "note": "无理由退货的运费由消费者承担（非资金裁决，随回复说明）"
+    },
+    {
+      "item_id": "R-JD-FREIGHT-SELLER-001",
+      "decision": "ADVISORY",
+      "reason_code": "FREIGHT_SELLER_PAYS",
+      "required_clause_ids": [
+        "CL-JD3727-CH1",
+        "CL-JD3727-A3#2",
+        "CL-JD3727-A9"
+      ],
+      "note": "质量类/商家过错场景运费由商家承担（非资金裁决）"
+    },
+    {
+      "item_id": "R-JD-COMPLIANCE-PRIVACY-001",
+      "decision": "MANUAL",
+      "reason_code": "PRIVACY_SHIPPING_REQUIRED",
+      "required_clause_ids": [
+        "CL-JD1244115246973587456-A1"
+      ],
+      "note": "隐私发货合规约束（对商家）"
+    },
+    {
+      "item_id": "R-JD-COMPLIANCE-STOCK-001",
+      "decision": "MANUAL",
+      "reason_code": "MALICIOUS_STOCK_HOLD",
+      "required_clause_ids": [
+        "CL-JD1206154529616302080-S1",
+        "CL-JD1206154529616302080-S2"
+      ],
+      "note": "恶意占库存违规处罚（对商家）"
+    },
+    {
+      "item_id": "R-JD-COMPLIANCE-RESALE-001",
+      "decision": "MANUAL",
+      "reason_code": "MALICIOUS_RESALE",
+      "required_clause_ids": [
+        "CL-JD902003809503547392-CH2"
+      ],
+      "note": "恶意倒卖纠纷处理（对商家）"
+    }
+  ],
+  "action_authorization_note": "allowed_actions 是规则级**动作授权**白名单：PolicyEngine 的 ALLOW 只代表业务资格成立；ActionPlanner 只能提出、CommandSubmitter 只能提交落在 authorized_actions 内的动作。ALLOW 但 authorized_actions 为空 -> 无可自动化动作（转人工）；ALLOW 但当前意图动作不在白名单 -> 需要用户确认可替代方案（澄清），不得自动执行。"
+}

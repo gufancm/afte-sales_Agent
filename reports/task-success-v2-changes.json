@@ -1,0 +1,1233 @@
+{
+  "source": "task_success_v1",
+  "target": "task_success_v2",
+  "changed": 46,
+  "changes": [
+    {
+      "case_id": "TS-001",
+      "title": "服饰第1天无理由仅退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-NR-WINDOW-OK-001 只授权 ['REQUEST_RETURN_REFUND']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-002",
+      "title": "服饰第7天无理由仅退款（边界）",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-NR-WINDOW-OK-001 只授权 ['REQUEST_RETURN_REFUND']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-003",
+      "title": "食品第3天无理由仅退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-NR-WINDOW-OK-001 只授权 ['REQUEST_RETURN_REFUND']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-004",
+      "title": "食品第5天颜色不符仅退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-NR-WINDOW-OK-001 只授权 ['REQUEST_RETURN_REFUND']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-016",
+      "title": "黄金克重不足补差",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_WEIGHT_COMPENSATION",
+        "rule_id": "R-JD-GOLD-WEIGHT-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_WEIGHT_COMPENSATION",
+        "rule_id": "R-JD-GOLD-WEIGHT-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-017",
+      "title": "珠宝克重差异补差",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_WEIGHT_COMPENSATION",
+        "rule_id": "R-JD-GOLD-WEIGHT-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_WEIGHT_COMPENSATION",
+        "rule_id": "R-JD-GOLD-WEIGHT-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-018",
+      "title": "服饰破损仅退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-Q-RETURN-001 只授权 ['REQUEST_RETURN_REFUND', 'CREATE_RESHIPMENT']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-019",
+      "title": "服饰发错货仅退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-Q-RETURN-001 只授权 ['REQUEST_RETURN_REFUND', 'CREATE_RESHIPMENT']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-021",
+      "title": "服饰破损第3天退货退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-022",
+      "title": "服饰污渍第5天退货退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-023",
+      "title": "服饰与描述不符退货退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-024",
+      "title": "未签收破损走维修/换货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_REPAIR",
+        "rule_id": "R-JD-Q-REPAIR-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_REPAIR",
+        "rule_id": "R-JD-Q-REPAIR-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+      "note": "政策确认资格，但当前动作空间没有可自动执行的动作（如维修），转人工"
+    },
+    {
+      "case_id": "TS-025",
+      "title": "已发货发错货走换货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_REPAIR",
+        "rule_id": "R-JD-Q-REPAIR-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_REPAIR",
+        "rule_id": "R-JD-Q-REPAIR-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+      "note": "政策确认资格，但当前动作空间没有可自动执行的动作（如维修），转人工"
+    },
+    {
+      "case_id": "TS-026",
+      "title": "已发货描述不符走换货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_REPAIR",
+        "rule_id": "R-JD-Q-REPAIR-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_REPAIR",
+        "rule_id": "R-JD-Q-REPAIR-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "NO_AUTOMATABLE_ACTION_FOR_POLICY",
+      "note": "政策确认资格，但当前动作空间没有可自动执行的动作（如维修），转人工"
+    },
+    {
+      "case_id": "TS-027",
+      "title": "黄金饰品质量问题退货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_QUALITY_RETURN",
+        "rule_id": "R-JD-GOLD-QUALITY-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_QUALITY_RETURN",
+        "rule_id": "R-JD-GOLD-QUALITY-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-028",
+      "title": "珠宝破损退货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_QUALITY_RETURN",
+        "rule_id": "R-JD-GOLD-QUALITY-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "GOLD_QUALITY_RETURN",
+        "rule_id": "R-JD-GOLD-QUALITY-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-029",
+      "title": "电动车电机故障退货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "EBIKE_MOTOR_RETURN",
+        "rule_id": "R-JD-EBIKE-3BAO-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "EBIKE_MOTOR_RETURN",
+        "rule_id": "R-JD-EBIKE-3BAO-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-030",
+      "title": "电动车质量问题退货",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "EBIKE_MOTOR_RETURN",
+        "rule_id": "R-JD-EBIKE-3BAO-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "EBIKE_MOTOR_RETURN",
+        "rule_id": "R-JD-EBIKE-3BAO-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-031",
+      "title": "烘焙日期不满意第10天退货退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-BAKERY-WINDOW-OK-001 只授权 ['CREATE_RESHIPMENT']，不授权 REQUEST_RETURN_REFUND；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-032",
+      "title": "烘焙日期不满意第15天退货退款（边界）",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-BAKERY-WINDOW-OK-001 只授权 ['CREATE_RESHIPMENT']，不授权 REQUEST_RETURN_REFUND；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-041",
+      "title": "APPAREL 在途拦截退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-042",
+      "title": "DIGITAL 在途拦截退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-043",
+      "title": "GROCERY 在途拦截退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-044",
+      "title": "FRESH 在途拦截退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-045",
+      "title": "BOOK_MEDIA 在途拦截退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-046",
+      "title": "CUSTOM 在途拦截退款",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-056",
+      "title": "烘焙日期不满意第3天补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-057",
+      "title": "烘焙日期不满意第8天补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-058",
+      "title": "烘焙日期不满意第12天补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-059",
+      "title": "烘焙日期不满意第15天补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "BAKERY_EXCHANGE_WITHIN_15D",
+        "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-062",
+      "title": "APPAREL 质量问题补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-063",
+      "title": "DIGITAL 质量问题补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-064",
+      "title": "GROCERY 质量问题补发",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "CREATE_RESHIPMENT"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-065",
+      "title": "FRESH 未发货要求补发（转人工）",
+      "old": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "MANUAL",
+        "reason_code": "SPECIAL_CANCEL_REVIEW",
+        "rule_id": "R-JD-CANCEL-SPECIAL-REVIEW-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "MANUAL",
+        "reason_code": "NO_APPLICABLE_POLICY",
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "NO_APPLICABLE_POLICY",
+      "note": "未发货补发：取消规则只授权取消退款（intent=REFUND_ONLY），补发无政策依据，转人工"
+    },
+    {
+      "case_id": "TS-066",
+      "title": "CUSTOM 未发货要求补发（转人工）",
+      "old": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "MANUAL",
+        "reason_code": "SPECIAL_CANCEL_REVIEW",
+        "rule_id": "R-JD-CANCEL-SPECIAL-REVIEW-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "MANUAL",
+        "reason_code": "NO_APPLICABLE_POLICY",
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "NO_APPLICABLE_POLICY",
+      "note": "未发货补发：特殊类目取消规则不再接管补发诉求，转人工"
+    },
+    {
+      "case_id": "TS-069",
+      "title": "烘焙补发缺申请时间",
+      "old": {
+        "response_type": "NEED_INFO",
+        "run_status": "WAITING_USER",
+        "policy_decision": "NEED_INFO",
+        "reason_code": "MISSING_FACT",
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "MANUAL",
+        "reason_code": "AUTHORITATIVE_FACT_UNAVAILABLE",
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "AUTHORITATIVE_FACT_UNAVAILABLE",
+      "note": "申请时点是平台记录事实，缺失不能让用户补填，转人工"
+    },
+    {
+      "case_id": "TS-070",
+      "title": "烘焙补发缺申请时间",
+      "old": {
+        "response_type": "NEED_INFO",
+        "run_status": "WAITING_USER",
+        "policy_decision": "NEED_INFO",
+        "reason_code": "MISSING_FACT",
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": "MANUAL",
+        "reason_code": "AUTHORITATIVE_FACT_UNAVAILABLE",
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "AUTHORITATIVE_FACT_UNAVAILABLE",
+      "note": "申请时点是平台记录事实，缺失不能让用户补填，转人工"
+    },
+    {
+      "case_id": "TS-081",
+      "title": "客服态度投诉",
+      "old": {
+        "response_type": "ANSWER",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "COMPLAINT_ESCALATED",
+      "note": "投诉必须进入人工待办（工单状态 MANUAL），ANSWER 不代表有人接手"
+    },
+    {
+      "case_id": "TS-082",
+      "title": "物流服务投诉",
+      "old": {
+        "response_type": "ANSWER",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "COMPLAINT_ESCALATED",
+      "note": "投诉必须进入人工待办（工单状态 MANUAL），ANSWER 不代表有人接手"
+    },
+    {
+      "case_id": "TS-083",
+      "title": "配送异常投诉",
+      "old": {
+        "response_type": "ANSWER",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "COMPLAINT_ESCALATED",
+      "note": "投诉必须进入人工待办（工单状态 MANUAL），ANSWER 不代表有人接手"
+    },
+    {
+      "case_id": "TS-084",
+      "title": "安装收费投诉",
+      "old": {
+        "response_type": "ANSWER",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "COMPLAINT_ESCALATED",
+      "note": "投诉必须进入人工待办（工单状态 MANUAL），ANSWER 不代表有人接手"
+    },
+    {
+      "case_id": "TS-085",
+      "title": "少件投诉",
+      "old": {
+        "response_type": "ANSWER",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "MANUAL",
+        "run_status": "COMPLETED",
+        "policy_decision": null,
+        "reason_code": null,
+        "rule_id": null,
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "COMPLAINT_ESCALATED",
+      "note": "投诉必须进入人工待办（工单状态 MANUAL），ANSWER 不代表有人接手"
+    },
+    {
+      "case_id": "TS-091",
+      "title": "REFUND_ONLY 首轮缺订单号，次轮补齐",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-NR-WINDOW-OK-001 只授权 ['REQUEST_RETURN_REFUND']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    },
+    {
+      "case_id": "TS-092",
+      "title": "RETURN_REFUND 首轮缺订单号，次轮补齐",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "QUALITY_RETURN_WINDOW",
+        "rule_id": "R-JD-Q-RETURN-001",
+        "commands": [
+          "REQUEST_RETURN_REFUND"
+        ],
+        "approval_required": true
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-093",
+      "title": "INTERCEPT_REFUND 首轮缺订单号，次轮补齐",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "PROCESSING",
+        "run_status": "WAITING_EXTERNAL",
+        "policy_decision": "ALLOW",
+        "reason_code": "INTERCEPT_OK",
+        "rule_id": "R-JD-INTERCEPT-INTRANSIT-001",
+        "commands": [
+          "INTERCEPT_PARCEL"
+        ],
+        "approval_required": false
+      },
+      "gate_reason": null,
+      "note": "政策授权该动作；提交 Saga 命令后进入异步执行"
+    },
+    {
+      "case_id": "TS-096",
+      "title": "重复提交同一退款请求",
+      "old": {
+        "response_type": "ACCEPTED",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [
+          "REQUEST_REFUND_ONLY"
+        ],
+        "approval_required": false
+      },
+      "new": {
+        "response_type": "NEED_INFO",
+        "run_status": "COMPLETED",
+        "policy_decision": "ALLOW",
+        "reason_code": "NO_REASON_WITHIN_7D",
+        "rule_id": "R-JD-NR-WINDOW-OK-001",
+        "commands": [],
+        "approval_required": false
+      },
+      "gate_reason": "ACTION_NOT_AUTHORIZED_BY_POLICY",
+      "note": "规则 R-JD-NR-WINDOW-OK-001 只授权 ['REQUEST_RETURN_REFUND']，不授权 REQUEST_REFUND_ONLY；需用户确认替代方案"
+    }
+  ]
+}

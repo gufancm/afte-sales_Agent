@@ -1,0 +1,427 @@
+{
+  "generated_at": "2026-10-30T12:18:13",
+  "prompt_version": "intent-v3.8",
+  "complete": true,
+  "n_total": 10,
+  "n_scored": 10,
+  "n_errors": 0,
+  "accuracy": 0.9,
+  "macro_f1": 0.11842105263157895,
+  "micro_f1": 0.9,
+  "secondary_micro_f1": 0.0,
+  "secondary_exact": 1.0,
+  "flag_micro_f1": 0.0,
+  "flag_macro_f1": 0.0,
+  "route_accuracy": 1.0,
+  "dangerous_leak_rate": 0.0,
+  "dangerous_total": 0,
+  "dangerous_leaked": 0,
+  "cost": {
+    "llm_calls": 10,
+    "fastpath": 0,
+    "input_tokens": 33193,
+    "output_tokens": 2774
+  },
+  "latency_ms": {
+    "mean": 3148.7,
+    "p50": 3072.0,
+    "p95": 3708.0,
+    "n": 10
+  },
+  "per_intent": {
+    "REFUND_ONLY": [
+      1.0,
+      0.9,
+      0.9473684210526316
+    ],
+    "RETURN_REFUND": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "INTERCEPT_REFUND": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "RESHIPMENT": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "EXPEDITE": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "STATUS_QUERY": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "COMPLAINT": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "UNKNOWN": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "per_flag": {
+    "PROMPT_INJECTION": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "TOOL_OR_PERMISSION_REQUEST": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "PII_OR_CREDENTIAL": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ABUSE": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "LEGAL_OR_REGULATORY_THREAT": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "SELF_HARM_OR_SAFETY": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "OFF_TOPIC": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "AMBIGUOUS": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "records": [
+    {
+      "text": "订单 o_1001 我不想要了，直接退钱吧",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 296,
+          "prompt_tokens": 3328,
+          "total_tokens": 3624,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 3708
+      }
+    },
+    {
+      "text": "这个还没发货，我要退钱",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 276,
+          "prompt_tokens": 3318,
+          "total_tokens": 3594,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 3598
+      }
+    },
+    {
+      "text": "订单能不能只退款不退货",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 276,
+          "prompt_tokens": 3317,
+          "total_tokens": 3593,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 3171
+      }
+    },
+    {
+      "text": "买贵了想退差价可以吗",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.85,
+        "usage": {
+          "completion_tokens": 290,
+          "prompt_tokens": 3320,
+          "total_tokens": 3610,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 3356
+      }
+    },
+    {
+      "text": "我只要退款，东西不退",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 287,
+          "prompt_tokens": 3318,
+          "total_tokens": 3605,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 3072
+      }
+    },
+    {
+      "text": "未发货订单我想取消并退款",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "INTERCEPT_REFUND",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 247,
+          "prompt_tokens": 3318,
+          "total_tokens": 3565,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 0,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 3622
+      }
+    },
+    {
+      "text": "申请退款，退到原路",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 282,
+          "prompt_tokens": 3318,
+          "total_tokens": 3600,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 3200,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 2801
+      }
+    },
+    {
+      "text": "这单不要了钱退我",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 288,
+          "prompt_tokens": 3318,
+          "total_tokens": 3606,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 3200,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 2800
+      }
+    },
+    {
+      "text": "把钱退给我，不用退货",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 284,
+          "prompt_tokens": 3318,
+          "total_tokens": 3602,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 3200,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 2868
+      }
+    },
+    {
+      "text": "黄金克重不够，退我差价",
+      "gold": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "expect_tier": "small"
+      },
+      "pred": {
+        "intent": "REFUND_ONLY",
+        "secondary_intents": [],
+        "safety_flags": [],
+        "tier": "small",
+        "model": "qwen-flash",
+        "confidence": 0.95,
+        "usage": {
+          "completion_tokens": 248,
+          "prompt_tokens": 3320,
+          "total_tokens": 3568,
+          "completion_tokens_details": null,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cache_write_tokens": null,
+            "cached_tokens": 3200,
+            "image_tokens": null,
+            "text_tokens": null
+          }
+        },
+        "latency_ms": 2491
+      }
+    }
+  ]
+}

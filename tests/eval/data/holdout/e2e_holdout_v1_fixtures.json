@@ -1,0 +1,944 @@
+{
+ "orders": [
+  {
+   "order_id": "ho001",
+   "status": "PAID_UNSHIPPED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho002",
+   "status": "PAID_UNSHIPPED",
+   "category": "DIGITAL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho003",
+   "status": "PAID_UNSHIPPED",
+   "category": "FRESH",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho004",
+   "status": "PAID_UNSHIPPED",
+   "category": "CUSTOM",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho005",
+   "status": "PAID_UNSHIPPED",
+   "category": "VIRTUAL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho006",
+   "status": "PAID_UNSHIPPED",
+   "category": "GENERAL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho007",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-27T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho008",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-24T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho009",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-21T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho010",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-21T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho011",
+   "status": "DELIVERED",
+   "category": "BOOK_MEDIA",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho012",
+   "status": "DELIVERED",
+   "category": "DIGITAL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho013",
+   "status": "DELIVERED",
+   "category": "APPLIANCE",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-26T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho014",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-25T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho015",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-25T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho016",
+   "status": "DELIVERED",
+   "category": "DIGITAL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-27T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho017",
+   "status": "DELIVERED",
+   "category": "GROCERY",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho018",
+   "status": "DELIVERED",
+   "category": "GOLD",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-26T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho019",
+   "status": "DELIVERED",
+   "category": "GOLD",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-25T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho020",
+   "status": "DELIVERED",
+   "category": "EBIKE",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-24T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho021",
+   "status": "PAID_SHIPPED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho022",
+   "status": "PAID_SHIPPED",
+   "category": "FRESH",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho023",
+   "status": "PAID_SHIPPED",
+   "category": "DIGITAL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho024",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-29T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho025",
+   "status": "PAID_SHIPPED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho026",
+   "status": "PAID_UNSHIPPED",
+   "category": "MEDICINE",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho027",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-26T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho028",
+   "status": "DELIVERED",
+   "category": "BAKERY",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-17T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho029",
+   "status": "DELIVERED",
+   "category": "BAKERY",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-06T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho030",
+   "status": "DELIVERED",
+   "category": "BAKERY",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-25T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho031",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho032",
+   "status": "PAID_SHIPPED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho033",
+   "status": "PAID_UNSHIPPED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho034",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho035",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho036",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho037",
+   "status": "PAID_UNSHIPPED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo"
+  },
+  {
+   "order_id": "ho038",
+   "status": "DELIVERED",
+   "category": "APPAREL",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-26T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho039",
+   "status": "DELIVERED",
+   "category": "smart_home",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-27T10:00:00+08:00"
+  },
+  {
+   "order_id": "ho040",
+   "status": "DELIVERED",
+   "category": "FRESH",
+   "currency": "CNY",
+   "version": "v1",
+   "lines": [
+    {
+     "order_line_id": "l1",
+     "sku_id": "sku_x1",
+     "quantity": 1
+    }
+   ],
+   "owner_user_id": "u_demo",
+   "delivered_at": "2026-10-28T10:00:00+08:00"
+  }
+ ],
+ "logistics": [
+  {
+   "waybill_no": "wb_ho007",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho008",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho009",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho010",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho011",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho012",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho013",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho014",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho015",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho016",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho017",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho018",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho019",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho020",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho021",
+   "parcel_status": "IN_TRANSIT",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho022",
+   "parcel_status": "IN_TRANSIT",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho023",
+   "parcel_status": "IN_TRANSIT",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho024",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho027",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho028",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho029",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho030",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho031",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho032",
+   "parcel_status": "IN_TRANSIT",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho034",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho035",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho036",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho038",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho039",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  },
+  {
+   "waybill_no": "wb_ho040",
+   "parcel_status": "SIGNED",
+   "version": "v1"
+  }
+ ],
+ "finance": [
+  {
+   "order_id": "ho001",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho002",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho003",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho004",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho005",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho006",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho007",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho008",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho009",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho010",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho011",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho012",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho013",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho014",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho015",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho016",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho017",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho018",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho019",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho020",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho021",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho022",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho023",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho024",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho025",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho026",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho027",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho028",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho029",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho030",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho031",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho032",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho033",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho034",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho035",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho036",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho037",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho038",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho039",
+   "available_minor": 500000
+  },
+  {
+   "order_id": "ho040",
+   "available_minor": 500000
+  }
+ ]
+}

@@ -1,0 +1,141 @@
+{
+  "version": "2026.10-jd",
+  "note": "面向用户的回复模板：属于政策内容的投影，必须与命中的规则绑定。每条模板声明 basis_rule_ids，只有该规则真正命中时才允许使用，避免图节点里的固定话术与版本化 Policy Engine 冲突。条款与预算一律不在此处承诺，实际以政策引擎裁决与版本化条款为准。",
+  "templates": [
+    {
+      "template_id": "deny-fresh-no-reason",
+      "expected_decision": "DENY",
+      "reason_code": "NO_REASON_FRESH_EXEMPT",
+      "basis_rule_ids": [
+        "R-JD-NR-DENY-FRESH-001"
+      ],
+      "text": "生鲜等鲜活易腐类商品属于不适用七日无理由退货的情形，抱歉无法按无理由退货处理；如商品存在变质、破损等质量问题，请提供照片或视频，我们会按质量问题售后流程为您处理。"
+    },
+    {
+      "template_id": "deny-custom-no-reason",
+      "expected_decision": "DENY",
+      "reason_code": "NO_REASON_CUSTOM_EXEMPT",
+      "basis_rule_ids": [
+        "R-JD-NR-DENY-CUSTOM-001"
+      ],
+      "text": "您购买的是消费者定作商品，属于不适用七日无理由退货的情形，抱歉无法按无理由退货处理；如存在质量问题或与定制要求不符，请提供凭证，我们会为您处理。"
+    },
+    {
+      "template_id": "deny-digital-no-reason",
+      "expected_decision": "DENY",
+      "reason_code": "NO_REASON_DIGITAL_EXEMPT",
+      "basis_rule_ids": [
+        "R-JD-NR-DENY-DIGITAL-001"
+      ],
+      "text": "该类商品在激活、拆封或使用后价值贬损较大，属于不适用七日无理由退货的情形；如存在质量问题，请提供凭证，我们会按质量问题售后流程处理。"
+    },
+    {
+      "template_id": "deny-sealed-no-reason",
+      "expected_decision": "DENY",
+      "reason_code": "NO_REASON_SEALED_EXEMPT",
+      "basis_rule_ids": [
+        "R-JD-NR-DENY-SEALED-001"
+      ],
+      "text": "图书、音像等一次性密封包装商品在密封破损后，属于不适用七日无理由退货的情形；如到货时密封已破损或存在质量问题，请提供照片，我们会为您处理。"
+    },
+    {
+      "template_id": "deny-intercept-delivered",
+      "expected_decision": "DENY",
+      "reason_code": "INTERCEPT_ALREADY_DELIVERED",
+      "basis_rule_ids": [
+        "R-JD-INTERCEPT-DELIVERED-DENY-001"
+      ],
+      "text": "该包裹已签收，无法执行在途拦截；如需处理，可申请退货退款或按质量问题售后流程办理。"
+    },
+    {
+      "template_id": "allow-no-reason-return",
+      "expected_decision": "ALLOW",
+      "reason_code": "NO_REASON_RETURN_OK",
+      "basis_rule_ids": [
+        "R-JD-NR-ALLOW-001"
+      ],
+      "text": "已受理您的七日无理由退货申请，请保持商品完好、附件齐全并在规定期限内寄回，寄回后即可退款；无理由退货的运费由您承担。"
+    },
+    {
+      "template_id": "allow-quality-return",
+      "expected_decision": "ALLOW",
+      "reason_code": "QUALITY_RETURN_WINDOW",
+      "basis_rule_ids": [
+        "R-JD-Q-RETURN-001"
+      ],
+      "text": "已受理您的质量问题退换申请，请提供问题凭证，退换涉及运费由我们承担。"
+    },
+    {
+      "template_id": "allow-quality-repair",
+      "expected_decision": "ALLOW",
+      "reason_code": "QUALITY_REPAIR",
+      "basis_rule_ids": [
+        "R-JD-Q-REPAIR-001"
+      ],
+      "text": "已受理您的质量问题维修申请，我们会按三包及维修服务规范为您安排检测与维修。"
+    },
+    {
+      "template_id": "allow-cancel-unshipped",
+      "expected_decision": "ALLOW",
+      "reason_code": "UNSHIPPED_CANCEL_REFUND",
+      "basis_rule_ids": [
+        "R-JD-CANCEL-UNSHIPPED-001"
+      ],
+      "text": "该订单尚未出库，已为您受理取消并安排退款。"
+    },
+    {
+      "template_id": "allow-intercept",
+      "expected_decision": "ALLOW",
+      "reason_code": "INTERCEPT_OK",
+      "basis_rule_ids": [
+        "R-JD-INTERCEPT-INTRANSIT-001"
+      ],
+      "text": "已为您提交在途拦截，拦截成功后将按退款流程处理；如拦截失败会同步告知。"
+    },
+    {
+      "template_id": "allow-late-delivery",
+      "expected_decision": "ALLOW",
+      "reason_code": "LATE_DELIVERY_COMPENSATION",
+      "basis_rule_ids": [
+        "R-JD-COMP-LATE-001"
+      ],
+      "text": "已受理延迟发货赔付申请，我们将按平台发货履约规则核算违约金后处理。"
+    },
+    {
+      "template_id": "allow-out-of-stock",
+      "expected_decision": "ALLOW",
+      "reason_code": "OUT_OF_STOCK_COMPENSATION",
+      "basis_rule_ids": [
+        "R-JD-COMP-OOS-001"
+      ],
+      "text": "已受理缺货/虚假发货赔付申请，将按平台发货履约规则退款并核算违约金。"
+    },
+    {
+      "template_id": "allow-gold-weight",
+      "expected_decision": "ALLOW",
+      "reason_code": "GOLD_WEIGHT_COMPENSATION",
+      "basis_rule_ids": [
+        "R-JD-GOLD-WEIGHT-001"
+      ],
+      "text": "已受理计价黄金克重补差申请，将以签收克重与页面标识克重比对后按规则补差。"
+    },
+    {
+      "template_id": "allow-gold-quality",
+      "expected_decision": "ALLOW",
+      "reason_code": "GOLD_QUALITY_RETURN",
+      "basis_rule_ids": [
+        "R-JD-GOLD-QUALITY-001"
+      ],
+      "text": "已受理贵金属质量问题退换申请，我们将按计价黄金售后规则为您处理。"
+    },
+    {
+      "template_id": "allow-ebike-3bao",
+      "expected_decision": "ALLOW",
+      "reason_code": "EBIKE_MOTOR_RETURN",
+      "basis_rule_ids": [
+        "R-JD-EBIKE-3BAO-001"
+      ],
+      "text": "已受理电动车类目质量问题申请，将按三包规则对电机等主要部件安排维修或更换。"
+    }
+  ]
+}

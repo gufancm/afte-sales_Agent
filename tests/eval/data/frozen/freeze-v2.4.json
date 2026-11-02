@@ -1,0 +1,81 @@
+{
+ "version": "2.4.0",
+ "date": "2026-10-29",
+ "dataset": {
+  "file": "task_success_v2.v2.4.jsonl",
+  "sha256": "831a1de51bf3d78456fc2c1c389541e1cd3fa8718c831da52d053f8521b39d5b",
+  "cases": 100,
+  "supersedes": "2.3.0",
+  "sha256_note": "对落盘文件字节（CRLF）计算，与 v2.3 口径一致"
+ },
+ "change_scope": "仅 3 条 intent 标签与对应 requested_action；政策裁决/命令/审批/终态字段未改动",
+ "changes": [
+  {
+   "case_id": "TS-006",
+   "before": "REFUND_ONLY",
+   "after": "RETURN_REFUND",
+   "fields": [
+    "intent",
+    "fixture.intent",
+    "expect_final.requested_action"
+   ],
+   "reason": "尺码不合适…想退：裸动词“退”作用于已签收服饰，E1 规范示例“尺码不对想退”→RETURN_REFUND"
+  },
+  {
+   "case_id": "TS-010",
+   "before": "REFUND_ONLY",
+   "after": "RETURN_REFUND",
+   "fields": [
+    "intent",
+    "fixture.intent",
+    "expect_final.requested_action"
+   ],
+   "reason": "定制尺寸不合适要退：裸动词“退”，同上口径；E1“尺码不合适换或者退”→RETURN_REFUND"
+  },
+  {
+   "case_id": "TS-015",
+   "before": "REFUND_ONLY",
+   "after": "RETURN_REFUND",
+   "fields": [
+    "intent",
+    "fixture.intent",
+    "expect_final.requested_action"
+   ],
+   "reason": "买错版本想退：已签收图书要求退回，E1“拍错了想退款”(REFUND_ONLY) 仅在出现“退款”时成立"
+  }
+ ],
+ "reviewed_no_change": [
+  {
+   "case_id": "TS-008",
+   "intent": "REFUND_ONLY",
+   "reason": "“颜色不对，不想要了”未出现退货/寄回/换货动词，属“不想买了要退钱”，E1 同类表述（这件东西不想要了退钱 / 货我不要了）为 REFUND_ONLY，维持不变"
+  }
+ ],
+ "caliber": {
+  "rule": "出现 退货/寄回/退回商品/换货 语义 -> RETURN_REFUND；只出现 退款/退钱/退差价 等资金语义 -> REFUND_ONLY；仅裸动词“退”（对象为已签收商品）-> RETURN_REFUND；无动词且未表达退回商品 -> REFUND_ONLY",
+  "evidence": "用该规则复现 E1 intent_golden.jsonl 的 80 条 REFUND_ONLY/RETURN_REFUND 样本，80/80 一致、0 冲突",
+  "spec": "tests/eval/E1-REVIEW.md 意图定义与“退款 vs 退货退款”边界；RETURN_REFUND 示例即“尺码不对想退”"
+ },
+ "supporting": {
+  "policy_cases": "policy_cases_v2.v2.2.jsonl:sha256:3213695c",
+  "policy_holdout": "policy_holdout_v1.1.v2.2.jsonl:sha256:bc42727c",
+  "pending_policy_v3": "task_success_pending_policy_v3.v2.2.jsonl:3 条，不计分"
+ },
+ "ruleset": {
+  "hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+  "version": "2026.10-jd"
+ },
+ "models": {
+  "large": "deepseek-v4-pro",
+  "small": "deepseek-flash",
+  "embedding": "BAAI/bge-m3"
+ },
+ "prompts": {
+  "intent": "intent-v3.7",
+  "planner": "planner-v3.6",
+  "clarify": "clarify-v3.5",
+  "responder": "responder-v3.5"
+ },
+ "code_version": "v2.3 (plan identity + approval ticket scope + eligibility routing)",
+ "scoring": "Workflow Handling Success 与 Final Business Completion 分开统计；PROCESSING 不计业务完成"
+}

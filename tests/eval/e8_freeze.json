@@ -1,0 +1,11 @@
+{
+  "dataset": "E8-retrieval-gold",
+  "version": "v1.1",
+  "frozen_at": "2026-10-27T21:52:55",
+  "file": "tests/eval/data/retrieval_queries.jsonl",
+  "sha256": "c58a8b635e19713b5e49982466084bf46dd5c9a3ed3f8ace2ede4c27dbaeeb4c",
+  "records": 118,
+  "confirmed": 10,
+  "review_changes": 10,
+  "note": "v1.1：7 条改 gold、4 条改问句（71/47/112/75）、3 条补答案要素（47/92/93）；其余 108 条待复核"
+}

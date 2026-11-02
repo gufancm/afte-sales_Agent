@@ -1,0 +1,61 @@
+{
+  "version": "task-success-live/2",
+  "date": "2026-10-30",
+  "data": "e2e_holdout_v1.jsonl",
+  "workflow_success": 2,
+  "total": 3,
+  "workflow_rate": 0.6667,
+  "business_success": 1,
+  "business_applicable": 2,
+  "business_rate": 0.5,
+  "approval_resume_ok": 1,
+  "approval_total": 1,
+  "dangerous_releases": 0,
+  "rows": [
+    {
+      "case_id": "ho001",
+      "workflow": "PASS",
+      "business": "PASS",
+      "detail": "PROCESSING",
+      "ticket_id": "b8ba5cb2-9ce0-4103-846d-2aa70d1b02d0",
+      "response_type": "PROCESSING",
+      "run_status": "WAITING_EXTERNAL",
+      "elapsed_ms": 31578,
+      "policy_decision": "ALLOW",
+      "reason_code": "UNSHIPPED_CANCEL_REFUND",
+      "rule_ids": "R-JD-CANCEL-UNSHIPPED-001",
+      "plan_hash": "sha256:dcb53469a1300c43bf0c0ce58a2f990742e578f4c7279f61b95f9d9b59f27dc5",
+      "commands": "REQUEST_REFUND_ONLY:CONFIRMED"
+    },
+    {
+      "case_id": "ho002",
+      "workflow": "FAIL",
+      "business": "FAIL",
+      "detail": "type MANUAL not in ['PROCESSING']; status COMPLETED not in ['WAITING_EXTERNAL']; 期望人工审批但未进入 WAITING_APPROVAL; commands 0 != 1; business terminal not reached: []",
+      "ticket_id": "b7891aed-a981-41b1-93d6-b096fdb8fbce",
+      "response_type": "MANUAL",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 25702,
+      "policy_decision": "MANUAL",
+      "reason_code": "NO_APPLICABLE_POLICY",
+      "rule_ids": "",
+      "plan_hash": "",
+      "commands": ""
+    },
+    {
+      "case_id": "ho003",
+      "workflow": "PASS",
+      "business": "N/A",
+      "detail": "MANUAL",
+      "ticket_id": "5446984d-a9f4-4399-935e-4c01744e6962",
+      "response_type": "MANUAL",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 25703,
+      "policy_decision": "MANUAL",
+      "reason_code": "NO_APPLICABLE_POLICY",
+      "rule_ids": "",
+      "plan_hash": "",
+      "commands": ""
+    }
+  ]
+}

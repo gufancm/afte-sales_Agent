@@ -1,0 +1,181 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ------------------------------------------------------------------ #
+  # 1) 单元/集成测试 + 覆盖率门槛（无 DB / 无 LLM，Fail-Closed）
+  # ------------------------------------------------------------------ #
+  test:
+    name: 测试与覆盖率 (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+    env:
+      APP_ENV: test
+      DATABASE_URL: memory://
+      LLM_MODEL: ""
+      FINANCE_REAL_WRITES_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 测试 + 覆盖率（低于阈值即失败）
+        run: |
+          pytest -q \
+            --cov=app --cov-report=term-missing:skip-covered \
+            --cov-report=xml:coverage.xml --cov-report=json:coverage.json \
+            --cov-fail-under=70
+
+      - name: 生成覆盖率徽章（docs/coverage.svg）
+        if: always()
+        run: python scripts/coverage_badge.py docs/coverage.svg coverage.xml
+
+      - name: 覆盖率写入 Job Summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          p = pathlib.Path("coverage.json")
+          if not p.exists():
+              print("no coverage.json"); raise SystemExit(0)
+          tot = json.loads(p.read_text())["totals"]
+          lines = ["### 覆盖率", "",
+                   f"- 语句覆盖：**{tot['percent_covered']:.2f}%**",
+                   f"- 语句：{tot['covered_lines']}/{tot['num_statements']}"]
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              pathlib.Path(summary).open("a", encoding="utf-8").write("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+
+      - name: 上传覆盖率产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            coverage.json
+            docs/coverage.svg
+          if-no-files-found: warn
+
+  # ------------------------------------------------------------------ #
+  # 1b) 离线评测集（E6 政策矩阵 / E9 证据闭包 / E1 意图离线 / E28 注入对抗）
+  #     无 DB、无 LLM 依赖，门槛不达标即失败；改动 prompt/规则后尤其关键。
+  # ------------------------------------------------------------------ #
+  eval-offline:
+    name: 离线评测集 (E6/E9/E1/E28)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 运行离线评测集（门槛不达标即失败）
+        env:
+          LLM_MODEL: ""
+          PYTHONIOENCODING: utf-8
+        run: python tests/eval/run_all.py
+
+  # ------------------------------------------------------------------ #
+  # 2) Docker 镜像可构建（验证 Dockerfile / compose / requirements 一致）
+  # ------------------------------------------------------------------ #
+  docker-build:
+    name: Docker 镜像构建
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 准备 .env（compose 需要）
+        run: cp .env.example .env
+      - name: 构建镜像（不启动服务）
+        run: docker compose build api worker migrate mcp-mock
+
+  # ------------------------------------------------------------------ #
+  # 3) 真实 Postgres + Worker + MCP Mock 端到端
+  #    （LLM 关闭、RAG 用内存条款，避免外部模型/权重依赖）
+  # ------------------------------------------------------------------ #
+  docker-e2e:
+    name: Docker 端到端（Postgres + Worker + MCP Mock）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 准备 .env（关闭 LLM / 外部向量依赖）
+        run: |
+          cp .env.example .env
+          sed -i 's/^LLM_MODEL=.*/LLM_MODEL=/' .env
+          sed -i 's/^RAG_BACKEND=.*/RAG_BACKEND=memory/' .env
+          sed -i 's/^RERANK_ENABLED=.*/RERANK_ENABLED=false/' .env
+          grep -E '^(LLM_MODEL|RAG_BACKEND|RERANK_ENABLED)=' .env
+
+      - name: 启动依赖服务（DB / Redis / MCP Mock / Worker）
+        run: docker compose up -d postgres redis mcp-mock worker
+
+      - name: 等待依赖就绪
+        run: |
+          for i in $(seq 1 30); do
+            docker compose ps --format '{{.Service}} {{.Status}}' | grep -q 'mcp-mock.*healthy' && break
+            sleep 5
+          done
+          docker compose ps
+
+      - name: DB + Saga 全链路验证（命令派发 + Worker 回执 + 资金结果）
+        run: |
+          docker compose run --rm \
+            -e MCP_MOCK_URL=http://mcp-mock:9100 \
+            -e POLICY_APP_DSN=postgresql+asyncpg://aftersale_app:app_pw_change_me@postgres:5432/aftersale \
+            -e POLICY_WORKER_DSN=postgresql+asyncpg://aftersale_worker:worker_pw_change_me@postgres:5432/aftersale \
+            api python scripts/verify_db_saga.py
+
+      - name: HTTP 冒烟（无 LLM → 只读/人工，零写命令）
+        run: |
+          docker compose up -d api
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8000/health >/dev/null 2>&1 && break
+            sleep 5
+          done
+          curl -fsS http://localhost:8000/health
+          curl -fsS http://localhost:8000/ready
+          curl -fsS http://localhost:8000/metrics | head -n 5
+          TID=$(curl -fsS -X POST http://localhost:8000/api/v1/tickets \
+            -H 'x-tenant-id: tenant_demo' -H 'x-user-id: u_demo' -H 'Content-Type: application/json' \
+            -d '{"intent":"UNKNOWN"}' | python -c 'import sys,json; print(json.load(sys.stdin)["ticket_id"])')
+          echo "ticket=$TID"
+          curl -fsS -X POST "http://localhost:8000/api/v1/tickets/$TID/messages" \
+            -H 'x-tenant-id: tenant_demo' -H 'x-user-id: u_demo' -H 'Content-Type: application/json' \
+            -d '{"text":"生鲜坏了想退款","thread_id":"th-ci"}'
+          curl -fsS "http://localhost:8000/api/v1/tickets/$TID" -H 'x-tenant-id: tenant_demo' -H 'x-user-id: u_demo'
+
+      - name: 失败时输出容器日志
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: 清理
+        if: always()
+        run: docker compose down -v

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+.venv-ingest/
+
+# 覆盖率产物（本地运行产生；徽章 docs/coverage.svg 由 CI 生成且需要提交）
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+htmlcov/
+
+# 环境与密钥
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
+
+# 本地临时调试脚本（不进版本库）
+tmp_*.py

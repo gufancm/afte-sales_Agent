@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+
+# VCS / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# 文档：默认不入镜像；但政策条款是运行时必需（内存 RAG 读取），必须保留
+*.md
+docs/
+!docs/policy/
+!docs/policy/*.md
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,94 @@
+{
+  "version": "policy-holdout-gold/1.1",
+  "revised_at": "2026-10-28",
+  "v1_0_first_run": {
+    "passed": 37,
+    "total": 40,
+    "dangerous": 1,
+    "failures": [
+      "HV-33",
+      "HV-35",
+      "HV-39"
+    ]
+  },
+  "corrections": [
+    {
+      "case_id": "HV-33",
+      "type": "gold_error",
+      "from": {
+        "decision": "NEED_INFO",
+        "reason_code": "MISSING_FACT",
+        "rule_id": "R-JD-NR-WINDOW-EXPIRED-001",
+        "required_clause_ids": [
+          "CL-JD4268-A3"
+        ],
+        "execution_blocked": false
+      },
+      "to": {
+        "decision": "NEED_INFO",
+        "reason_code": "MISSING_FACT",
+        "rule_id": null,
+        "check_rule": "blocked_candidate",
+        "required_clause_ids": [],
+        "missing_facts": [
+          "claim.reason_code"
+        ],
+        "execution_blocked": false
+      }
+    },
+    {
+      "case_id": "HV-35",
+      "type": "contract_fix",
+      "from": {
+        "decision": "NEED_INFO",
+        "reason_code": "MISSING_FACT",
+        "rule_id": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+        "required_clause_ids": [
+          "CL-JD1148155761021554688-S4"
+        ],
+        "execution_blocked": false
+      },
+      "to": {
+        "decision": "NEED_INFO",
+        "reason_code": "MISSING_FACT",
+        "rule_id": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+        "required_clause_ids": [],
+        "missing_facts": [
+          "claim.claim_at"
+        ],
+        "execution_blocked": false
+      }
+    },
+    {
+      "case_id": "HV-39",
+      "type": "gold_error",
+      "from": {
+        "decision": "MANUAL",
+        "reason_code": "AUTHORITATIVE_FACT_UNAVAILABLE",
+        "rule_id": null,
+        "required_clause_ids": [],
+        "execution_blocked": false
+      },
+      "to": {
+        "decision": "ALLOW",
+        "reason_code": "UNSHIPPED_CANCEL_REFUND",
+        "rule_id": "R-JD-CANCEL-UNSHIPPED-001",
+        "required_clause_ids": [
+          "CL-JD590903538377428992-S3#2",
+          "CL-JD590903538377428992-S3"
+        ],
+        "missing_facts": [],
+        "execution_blocked": false
+      }
+    }
+  ],
+  "engine_defects_found": [],
+  "attempted_changes_reverted": [
+    {
+      "id": "ENG-HOLDOUT-01",
+      "change": "让 blocked winner 的 NEED_INFO 带出 required_clause_ids",
+      "why_reverted": "会使 120 条冻结主集中的 POL-C01~C04 条款断言失效；NEED_INFO 走 clarify 不取证据，条款不对用户可见。改主集属事后回填，故回退，仅保留 rule_ids 作为审计指针。"
+    }
+  ],
+  "untouched": "除 HV-33 / HV-35 / HV-39 三条外，其余 37 条金标未做任何修改"
+}

@@ -1,0 +1,32 @@
+{
+ "version": "2.3.0",
+ "date": "2026-10-29",
+ "dataset": {
+  "file": "task_success_v2.v2.3.jsonl",
+  "sha256": "badac96cc65bcaa747322b12b3a291727a969675756cab1e4ec4b62151e5fea7",
+  "cases": 100,
+  "unchanged_from": "2.2.0"
+ },
+ "supporting": {
+  "policy_cases": "policy_cases_v2.v2.2.jsonl:sha256:3213695c",
+  "policy_holdout": "policy_holdout_v1.1.v2.2.jsonl:sha256:bc42727c",
+  "pending_policy_v3": "task_success_pending_policy_v3.v2.2.jsonl:3 条，不计分"
+ },
+ "ruleset": {
+  "hash": "6356b6c5b5736afc5052befab409921517b04e2c584d5c57ab8c5a2d884147e3",
+  "version": "2026.10-jd"
+ },
+ "models": {
+  "large": "deepseek-v4-pro",
+  "small": "deepseek-flash",
+  "embedding": "BAAI/bge-m3"
+ },
+ "prompts": {
+  "intent": "intent-v3.7",
+  "planner": "planner-v3.6",
+  "clarify": "clarify-v3.5",
+  "responder": "responder-v3.5"
+ },
+ "code_version": "v2.3 (plan identity + approval ticket scope + eligibility routing)",
+ "scoring": "Workflow Handling Success 与 Final Business Completion 分开统计；PROCESSING 不计业务完成"
+}

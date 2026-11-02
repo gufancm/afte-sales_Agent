@@ -1,0 +1,61 @@
+{
+  "version": "task-success-live/2",
+  "date": "2026-10-30",
+  "data": "e2e_holdout_v1.jsonl",
+  "workflow_success": 3,
+  "total": 3,
+  "workflow_rate": 1.0,
+  "business_success": 1,
+  "business_applicable": 1,
+  "business_rate": 1.0,
+  "approval_resume_ok": 1,
+  "approval_total": 1,
+  "dangerous_releases": 0,
+  "rows": [
+    {
+      "case_id": "ho002",
+      "workflow": "PASS",
+      "business": "PASS",
+      "detail": "PROCESSING",
+      "ticket_id": "4e103c96-2158-4dce-9f3c-376f479b4f95",
+      "response_type": "PROCESSING",
+      "run_status": "WAITING_EXTERNAL",
+      "elapsed_ms": 24453,
+      "policy_decision": "ALLOW",
+      "reason_code": "UNSHIPPED_CANCEL_REFUND",
+      "rule_ids": "R-JD-CANCEL-UNSHIPPED-001",
+      "plan_hash": "sha256:5169e88535d437f2a2ed74d7c68703c78e56f5f03e919cd90c430275a5c455b2",
+      "commands": "REQUEST_REFUND_ONLY:CONFIRMED"
+    },
+    {
+      "case_id": "ho003",
+      "workflow": "PASS",
+      "business": "N/A",
+      "detail": "MANUAL",
+      "ticket_id": "290df108-8b91-4375-9770-633d0cedba7b",
+      "response_type": "MANUAL",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 26437,
+      "policy_decision": "MANUAL",
+      "reason_code": "SPECIAL_CANCEL_REVIEW",
+      "rule_ids": "R-JD-CANCEL-SPECIAL-REVIEW-001",
+      "plan_hash": "",
+      "commands": ""
+    },
+    {
+      "case_id": "ho005",
+      "workflow": "PASS",
+      "business": "N/A",
+      "detail": "MANUAL",
+      "ticket_id": "695a967d-5cd4-44a6-b904-0d638d365119",
+      "response_type": "MANUAL",
+      "run_status": "COMPLETED",
+      "elapsed_ms": 26218,
+      "policy_decision": "MANUAL",
+      "reason_code": "SPECIAL_CANCEL_REVIEW",
+      "rule_ids": "R-JD-CANCEL-SPECIAL-REVIEW-001",
+      "plan_hash": "",
+      "commands": ""
+    }
+  ]
+}

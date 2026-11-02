@@ -1,0 +1,91 @@
+{
+ "version": "2.1.0",
+ "date": "2026-10-28",
+ "principle": "旧版冻结数据与成绩保留，不覆盖；新版单独成版并重跑回归",
+ "policy_cases": [
+  {
+   "case_id": "POL-C03",
+   "before": {
+    "decision": "NEED_INFO",
+    "reason_code": "MISSING_FACT"
+   },
+   "after": {
+    "decision": "MANUAL",
+    "reason_code": "AUTHORITATIVE_FACT_UNAVAILABLE"
+   },
+   "why": "claim_at 属平台权威事实，缺失不得让用户补填"
+  },
+  {
+   "case_id": "POL-C04",
+   "before": {
+    "decision": "NEED_INFO",
+    "reason_code": "MISSING_FACT"
+   },
+   "after": {
+    "decision": "MANUAL",
+    "reason_code": "AUTHORITATIVE_FACT_UNAVAILABLE"
+   },
+   "why": "同上"
+  }
+ ],
+ "holdout": [
+  {
+   "case_id": "HV-02",
+   "before": {
+    "decision": "ALLOW",
+    "reason_code": "QUALITY_REPAIR"
+   },
+   "after": {
+    "decision": "MANUAL",
+    "reason_code": "IN_TRANSIT_QUALITY_REVIEW"
+   },
+   "why": "未签收无法验货，质量争议转人工"
+  },
+  {
+   "case_id": "HV-08",
+   "before": {
+    "decision": "ALLOW",
+    "reason_code": "GOLD_QUALITY_RETURN"
+   },
+   "after": {
+    "decision": "MANUAL",
+    "reason_code": "IN_TRANSIT_QUALITY_REVIEW"
+   },
+   "why": "同上"
+  },
+  {
+   "case_id": "HV-35",
+   "before": {
+    "decision": "NEED_INFO",
+    "reason_code": "MISSING_FACT"
+   },
+   "after": {
+    "decision": "MANUAL",
+    "reason_code": "AUTHORITATIVE_FACT_UNAVAILABLE"
+   },
+   "why": "同上 claim_at 口径"
+  }
+ ],
+ "rules": [
+  {
+   "rule_id": "R-JD-BAKERY-WINDOW-OK-001",
+   "change": "增加 intent=RESHIPMENT；allowed_actions 置空",
+   "why": "S4 只规定可申请换货；换货≠补发履约，系统无换货动作 -> 转人工"
+  },
+  {
+   "rule_id": "R-JD-BAKERY-WINDOW-EXPIRED-001",
+   "change": "增加 intent=RESHIPMENT",
+   "why": "换货窗口不能用于裁决退货退款"
+  },
+  {
+   "rule_id": "R-JD-INTRANSIT-QUALITY-001",
+   "change": "新增（MANUAL, stage 10）",
+   "why": "未签收质量争议无法验货，S16 需核实责任"
+  },
+  {
+   "rule_id": "R-JD-Q-REPAIR-001",
+   "change": "原因集收窄为 QUALITY_DEFECT/DAMAGED/NOT_AS_DESCRIBED",
+   "why": "少件/错件属签收异常（S18/S22），不由维修规则接管"
+  }
+ ]
+}

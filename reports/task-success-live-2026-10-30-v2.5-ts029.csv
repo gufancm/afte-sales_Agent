@@ -1,0 +1,2 @@
+﻿case_id,workflow,business,detail,ticket_id,response_type,run_status,elapsed_ms,policy_decision,reason_code,rule_ids,plan_hash,commands
+TS-029,PASS,PASS,PROCESSING,4ae2ef6a-de87-4aa9-8dcc-531794277059,PROCESSING,WAITING_EXTERNAL,24266,ALLOW,EBIKE_MOTOR_RETURN,R-JD-EBIKE-3BAO-001,sha256:9b5efac8d434f509eeec4dc072f8bde9933ff13896fc3ba14023a2e202a03130,REQUEST_RETURN_REFUND:CONFIRMED
