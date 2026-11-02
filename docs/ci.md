@@ -26,7 +26,7 @@
 
 ## 2.1 发布到 GitHub
 
-仓库已发布：`https://github.com/gufancm/aftersale-agent`（`main` 分支，Actions 四 Job 全绿）。
+仓库已发布：`https://github.com/gufancm/afte-sales_Agent`（`main` 分支，Actions 四 Job 全绿）。
 换机器或重建仓库时，首次推送按三步执行（`.env` 被忽略，`coverage.xml/json` 不入库）：
 
 ```powershell
@@ -91,7 +91,7 @@ docker compose run --rm \
 
 - **覆盖率徽章**（已生效、无需外部服务）：CI 每次运行重新生成 `docs/coverage.svg`，README 引用该文件。
 - **CI 状态徽章**（已生效）：README 顶部已引用
-  `https://github.com/gufancm/aftersale-agent/actions/workflows/ci.yml/badge.svg`。
+  `https://github.com/gufancm/afte-sales_Agent/actions/workflows/ci.yml/badge.svg`。
 
 - 如需 Codecov/Coveralls 之类的服务徽章，可在 `test` job 增加上传步骤（当前未接入，保持零外部依赖）。
 

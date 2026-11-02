@@ -15,7 +15,7 @@ LangGraph 工作流、Saga/Outbox + Worker、MCP 端口与 Mock、API/SSE、数�
 ![docker](https://img.shields.io/badge/docker-compose-2496ED)
 ![observability](https://img.shields.io/badge/metrics-prometheus-orange)
 ![coverage](docs/coverage.svg)
-![ci](https://github.com/gufancm/aftersale-agent/actions/workflows/ci.yml/badge.svg)
+![ci](https://github.com/gufancm/afte-sales_Agent/actions/workflows/ci.yml/badge.svg)
 
 ## 架构总览
 
@@ -442,7 +442,7 @@ docker compose run --rm api python scripts/demo_ticket.py           # 建单->�
   迁移 `0020_memory.sql`；原理与实测见 `docs/memory-design.md`。
 - CI 与覆盖率已落地（2026-10-26，2026-11-02 四 Job 全绿）：GitHub Actions 四 Job（测试+覆盖率门槛 / 离线评测 /
   镜像构建 / DB 端到端 + HTTP 冒烟）；覆盖率徽章零外部依赖自动生成。
-  仓库已发布：`https://github.com/gufancm/aftersale-agent`，CI 见 Actions 页。详见 `docs/ci.md`。
+  仓库已发布：`https://github.com/gufancm/afte-sales_Agent`，CI 见 Actions 页。详见 `docs/ci.md`。
 - 检索离线评测（recall@k/MRR/nDCG）与金标集：本轮明确暂缓，项目收尾统一测评。
 - HITL 检查点当前为进程内 `InMemorySaver` → API 单副本；多副本需 PostgresSaver/RedisSaver。
 - Outbox Relay 已落地（Worker `mark_outbox_published`）；评测金标集、SLO 校准、许可证见 LLD v3.5 第 14/17 章。
