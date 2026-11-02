@@ -80,6 +80,9 @@ services:
       # HITL 暂停点落 Postgres：容器重启/多副本后仍可 Command(resume=...) 续跑
       CHECKPOINT_BACKEND: postgres
       CHECKPOINT_SETUP_ON_START: "true"
+      # Checkpointer 需要建表权限；aftersale_app 是 RLS 应用角色（public 无 CREATE）。
+      # 本地基线复用 owner 角色；生产应新建独立最小权限角色或独立 schema。
+      CHECKPOINT_DATABASE_URL: postgresql://agent_user:change-me@postgres:5432/aftersale
     depends_on:
       postgres: {condition: service_healthy}
       redis: {condition: service_started}

@@ -9,11 +9,12 @@
 - 手动 `workflow_dispatch`
 - 同一 ref 的新运行会取消旧运行（`concurrency`）
 
-## 2. 三个 Job
+## 2. 四个 Job
 
 | Job | 目的 | 关键步骤 |
 | --- | --- | --- |
 | `test` | 单元/集成测试 + 覆盖率门槛（无 DB、无 LLM，Fail-Closed） | `pip install -r requirements.txt` → `pytest --cov=app ... --cov-fail-under=70` → 生成徽章 → 写 Job Summary → 上传产物 |
+| `eval-offline` | 离线评测集回归（E6 政策矩阵 / E9 证据闭包 / E1 意图 / E28 注入对抗） | `python tests/eval/run_all.py`，无 DB、无 LLM，门槛不达标即失败 |
 | `docker-build` | 验证 Dockerfile / compose / requirements 一致 | `cp .env.example .env` → `docker compose build api worker migrate mcp-mock` |
 | `docker-e2e` | 真实 Postgres + Worker + MCP Mock 端到端 | `.env` 关闭 LLM 与外部向量依赖 → `up -d postgres redis mcp-mock worker` → `verify_db_saga.py` → HTTP 冒烟（`/health` `/ready` `/metrics` + 建单/发消息/查单）→ 失败输出日志 → `down -v` |
 
@@ -47,7 +48,9 @@ docker compose run --rm \
 ## 4. 覆盖率现状与口径
 
 - `source = ["app"]`；`pyproject.toml` 的 `[tool.coverage.*]` 排除 `pragma: no cover`、`if TYPE_CHECKING:`、`raise NotImplementedError`。
-- 当前实测：**151 passed，语句覆盖 70.4%（3559/5053）**，门槛 `--cov-fail-under=70`。
+- 当前实测：**311 passed，语句覆盖 75.0%（4752/6334）**，门槛 `--cov-fail-under=70`（数字随每次运行更新，徽章为唯一权威）。
+- 新增模块自带测试：`app/mcp/stdio_server.py`（含子进程 stdio 握手）、`app/graph/checkpointer.py`（含模拟重启恢复）、
+  `app/graph/retry.py`（重试白名单与真实重试行为）、`app/rag/table_merge.py`（跨页合并与 Markdown 回写）。
 - 单元测试覆盖薄弱/为零的主要是**只能端到端验证**的模块（由 `docker-e2e` 覆盖，但不计入本门槛）：
 
   | 模块 | 语句 | 说明 |

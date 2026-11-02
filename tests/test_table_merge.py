@@ -77,6 +77,26 @@ def test_layout_adjacent_same_width_merges_without_repeated_header():
     assert rep.tables[0].pages == [1, 2]
 
 
+def test_header_only_block_absorbs_body_on_same_page():
+    chunks = [
+        TableChunk(3, [["商品详情文案", "说明"]]),
+        TableChunk(3, [["不支持", "商品不支持7天无理由退货"], ["支持", "支持退货"]]),
+    ]
+    rep = merge_cross_page_tables(chunks)
+    assert rep.output_count == 1
+    assert rep.tables[0].rows == [["商品详情文案", "说明"],
+                                  ["不支持", "商品不支持7天无理由退货"],
+                                  ["支持", "支持退货"]]
+
+
+def test_same_page_two_full_tables_not_merged():
+    chunks = [
+        TableChunk(3, [["a", "b"], ["1", "2"]]),
+        TableChunk(3, [["c", "d"], ["3", "4"]]),
+    ]
+    assert merge_cross_page_tables(chunks).output_count == 2
+
+
 def test_layout_adjacent_but_different_width_not_merged():
     chunks = [
         TableChunk(1, [["a", "b"], ["1", "2"]],
@@ -113,6 +133,8 @@ def test_replace_table_blocks_rewrites_only_merged_tables():
     out, replaced = replace_table_blocks(md, rep)
     assert replaced == 2
     assert out.count("| h | v |") == 1
+    # 原表块的分隔线与数据行必须被整体替换，不能残留出第二张表
+    assert out.count("| --- | --- |") == 1
     assert "| 3 | 4 |" in out
     assert "中间" in out
 

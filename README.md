@@ -11,7 +11,7 @@ LangGraph 工作流、Saga/Outbox + Worker、MCP 端口与 Mock、API/SSE、数�
 
 
 ![python](https://img.shields.io/badge/python-3.12-blue)
-![tests](https://img.shields.io/badge/tests-165%20passed-brightgreen)
+![tests](https://img.shields.io/badge/tests-311%20passed-brightgreen)
 ![docker](https://img.shields.io/badge/docker-compose-2496ED)
 ![observability](https://img.shields.io/badge/metrics-prometheus-orange)
 ![coverage](docs/coverage.svg)
@@ -343,6 +343,10 @@ Host 侧配置（`MCP_STDIO_BACKEND=asgi` 为进程内直连 mock，`http` 则�
 `*.tables.merged.md`（合并后的表格附录）、`*.docling.merged.md`（**已把 Markdown 表格块替换为合并版本**，可直接回灌切块），
 并在 `_parse_report.csv` 记录 `docling_tables / tables_merged / table_merge_pairs / md_tables_replaced`。
 
+实测（17 份京东政策 PDF，Docling 2.x）：解析 **17/17 成功**；识别表格 **49 张 → 合并后 27 张**（跨页/同页拆分共 **22 处**），
+其中 6 份文档的 Markdown 表格块被改写（**34 个块**）。例：7 天无理由退货规则 9→4、取消订单规则 10→4、售后管理规则 10→6。
+已知残留：个别商品表格因 Docling 单元格对齐失败被识别成 2 列表头块（与 3 列表体列数不一致），按「不合并」处理，需在条款映射阶段人工兜底。
+
 ## 测试
 
 ```bash
@@ -396,7 +400,7 @@ docker compose run --rm api python scripts/demo_ticket.py           # 建单->�
   `eval-offline`（E6/E9/E1/E28 离线评测，门槛不达标即失败）、
   `docker-build`（`docker compose build api worker migrate mcp-mock`）、
   `docker-e2e`（真实 Postgres + Worker + MCP Mock：`verify_db_saga.py` + HTTP 冒烟；LLM 关闭、RAG 走内存条款）。
-- **覆盖率**：`source = app`，当前 **73.6%**，门槛 70%；徽章 `docs/coverage.svg` 由
+- **覆盖率**：`source = app`，当前 **75.0%（4752/6334 语句）**，门槛 70%；徽章 `docs/coverage.svg` 由
   `scripts/coverage_badge.py` 从 `coverage.xml` 生成（零外部依赖、无需 Codecov）。薄弱模块均为只能端到端验证的
   `app/db/persistence.py`、`app/rag/pg.py`、`app/mcp/client.py`、`app/main.py`、`app/api/routes.py`（已由 `docker-e2e` 覆盖）。
 - Job 细节、本地复现命令、如何启用 CI 状态徽章：见 **`docs/ci.md`**。

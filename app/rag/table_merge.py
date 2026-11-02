@@ -143,16 +143,21 @@ def merge_cross_page_tables(chunks: list[TableChunk], *, max_page_gap: int = 1) 
 
         last_page = cur.pages[-1] if cur.pages else None
         page_no = chunk.page_no
+        same_page = last_page is not None and page_no == last_page
+        # 同页「只有表头的块 + 紧随其后的表体」：Docling 也会把一张表切成两块
+        header_only_prev = len(cur.rows) == 1 and len(cur.source_indexes) == 1
         mergeable = (
             last_page is not None
             and page_no is not None
-            and 0 < page_no - last_page <= max_page_gap
             and _column_count(rows) == _column_count(cur.rows)
+            and (0 < page_no - last_page <= max_page_gap or (same_page and header_only_prev))
         )
         if mergeable:
             repeated_header = normalize_row(rows[0]) == normalize_row(cur.rows[0])
             if repeated_header:
                 body = rows[1:]
+            elif same_page and header_only_prev:
+                body = rows  # 表头在上一个块里，本块整段都是表体
             elif _row_incomplete(cur.rows[-1]):
                 body = rows  # 页边界把一行切成两半，续页首行是数据
             elif _layout_adjacent(cur, chunk):
@@ -230,8 +235,10 @@ def replace_table_blocks(md: str, report: MergeReport) -> tuple[str, int]:
     for table in report.tables:
         if len(table.source_indexes) <= 1:
             continue
-        start = blocks[table.source_indexes[0]][0]
+        start, end = blocks[table.source_indexes[0]]
         replacements[start] = to_markdown(table.rows).splitlines()
+        # 原表块除首行外的内容必须一并丢弃，否则会残留重复的表头/数据行
+        drop.update(range(start + 1, end))
         # 后续页的表格块整体丢弃；两页之间的其它文字（页眉页脚等）保留，避免误删正文
         for idx in table.source_indexes[1:]:
             s, e = blocks[idx]
