@@ -6,6 +6,7 @@ HTTP 状态码统一映射为结构化异常：404 -> ToolNotFound、401/403 -> 
 """
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import httpx
@@ -25,9 +26,22 @@ def _detail(resp: httpx.Response, default: str) -> str:
     return default
 
 
+# 连接建立阶段的重试：DNS 抖动 / 拒绝连接时请求必然没有到达上游，
+# 因此即使是对写端口（如预占报价）重试也不会造成重复副作用。
+_CONNECT_ATTEMPTS = 4
+_CONNECT_BACKOFF_S = 0.5
+
+
 async def _post(base_url: str, path: str, payload: dict, timeout_s: float) -> dict:
-    async with httpx.AsyncClient(timeout=timeout_s) as c:
-        r = await c.post(f"{base_url}{path}", json=payload)
+    for attempt in range(1, _CONNECT_ATTEMPTS + 1):
+        try:
+            async with httpx.AsyncClient(timeout=timeout_s) as c:
+                r = await c.post(f"{base_url}{path}", json=payload)
+            break
+        except (httpx.ConnectError, httpx.ConnectTimeout):
+            if attempt >= _CONNECT_ATTEMPTS:
+                raise
+            await asyncio.sleep(_CONNECT_BACKOFF_S * (2 ** (attempt - 1)))
     if r.status_code == 404:
         raise ToolNotFound(_detail(r, f"NOT_FOUND:{path}"))
     if r.status_code in (401, 403):
