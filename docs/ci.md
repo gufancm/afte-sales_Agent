@@ -24,6 +24,24 @@
 - **不使用真实 LLM**：`LLM_MODEL=` 为空时进入只读/人工路径（不产生任何写命令），保证确定性与零成本。
 - `test` 与 `docker-e2e` 的覆盖率**不合并**（合并需 `coverage combine` + 多来源数据）；当前 `test` 为唯一门槛来源。
 
+## 2.1 发布到 GitHub（首次）
+
+仓库已 `git init` 并完成两次本地提交（`.env` 被忽略，`coverage.xml/json` 不入库）。首次推送只需三步：
+
+```powershell
+# 1) 登录（浏览器授权，只需一次）
+gh auth login --hostname github.com --git-protocol https --web
+
+# 2) 创建仓库并推送（private/public 按需选择）
+gh repo create aftersale-agent --public --source=. --remote=origin --push
+
+# 3) 看首次 CI 结果
+gh run watch
+```
+
+注意：本机仓库目录的属主是 `CodexSandboxOffline`，与登录用户 `wjy` 不同，git 会报 `dubious ownership`。
+已执行 `git config --global --add safe.directory E:/agent/aftersale-agent`；换机器/换路径时需要重新执行一次。
+
 ## 3. 本地复现
 
 ```bash
