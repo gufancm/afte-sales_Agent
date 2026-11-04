@@ -3,7 +3,8 @@
 对应设计文档：`docs/ecommerce-aftersale-agent-lld-v3.5.md`（LLD v3.5）。
 本仓库是该 LLD 的**可运行、可 Docker 部署**的实现：意图识别、确定性 Policy Engine、RAG 证据闭包、
 LangGraph 工作流、Saga/Outbox + Worker、MCP 端口与 Mock、API/SSE、数据库迁移与测试。
-V4.0 增量重构已内置：`WORKFLOW_V4_ENABLED=true` 时启用九节点图，V3 图默认保留用于旧工单与回滚。
+V4.0 增量重构已内置：`WORKFLOW_V4_ENABLED=true` 时新工单固定 `workflow_version=v4` 并启用九节点图；
+既有 V3 工单继续按原 V3 图与 Checkpoint 恢复，不受全局开关影响。
 
 > 免责：**实施基线**，非生产验证系统。接入真实资金系统前必须完成迁移执行、故障恢复与财务对账验证；
 > 默认 `FINANCE_REAL_WRITES_ENABLED=false`（外部资金写禁用）。
@@ -53,6 +54,8 @@ flowchart TB
 - **V4 九节点工作流**：`intent_guardrail → context_aggregator → policy_retrieval → llm_decision →
   decision_guard → hitl_review → safe_execution → result_verifier → response_composer`；LLM 仅生成候选方案，
   DecisionGuard 独立完成验证与风控，SafeExecution 合并准备/复核/幂等提交，政策不确定转后台核实任务。
+  `policy_retrieval` 不依赖旧 `policy_decision`；`llm_decision` 输出强类型 `DecisionProposal`；
+  `decision_guard` 直接校验证据、动作、订单与金额，`NEED_INFO`/`REJECTED` 不误建政策核实任务。
 - **MCP 标准协议**：官方 SDK 的 stdio Server（JSON-RPC 2.0），15 个售后工具（10 只读 / 5 写）带 `readOnlyHint` 与必填幂等键，
   任意 MCP Host 可直接接入；业务逻辑仍由既有网关/处理器单点实现，不重复实现规则。
 - **可恢复 HITL**：Postgres Checkpointer 持久化 `interrupt()` 暂停点（`CHECKPOINT_BACKEND=memory|postgres`），

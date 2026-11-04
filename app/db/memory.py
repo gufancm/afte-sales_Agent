@@ -40,10 +40,12 @@ class InMemoryPersistence:
         self.episodic_memories: list[dict] = []
         self.user_profiles: dict[tuple[str, str], dict] = {}
 
-    async def create_ticket(self, *, tenant_id, user_id, order_id, intent, status="NEW"):
+    async def create_ticket(self, *, tenant_id, user_id, order_id, intent, status="NEW",
+                            workflow_version="v3"):
         tid = _uuid()
         self.tickets[tid] = {"ticket_id": tid, "tenant_id": tenant_id, "user_id": user_id, "order_id": order_id,
-                             "intent": intent, "status": status, "version": 0, "event_sequence": 0, "active_run_id": None}
+                             "intent": intent, "status": status, "version": 0, "event_sequence": 0,
+                             "active_run_id": None, "workflow_version": workflow_version}
         self.messages[tid] = []
         self.events[tid] = []
         M.TICKETS.inc()

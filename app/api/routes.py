@@ -57,6 +57,12 @@ def _persist(request: Request) -> Any:
     return request.app.state.deps.persistence
 
 
+def _graph_for_ticket(request: Request, ticket: dict):
+    """按工单固定版本选图，避免旧 Checkpoint 被 V4 图恢复。"""
+    deps = _deps(request)
+    return deps.v4_graph if ticket.get("workflow_version") == "v4" else deps.graph
+
+
 async def _load_memory(request: Request, state: dict, *, query: str) -> None:
     """把记忆装载进 state：短期跨轮历史 + 滚动摘要 + 情景/语义召回。
 
@@ -86,8 +92,10 @@ async def create_ticket(body: dict, request: Request, ctx: Ctx = Depends(get_ctx
                         idempotency_key: str | None = Header(default=None, alias="Idempotency-Key")) -> dict:
     intent = body.get("intent") or "UNKNOWN"
     order_id = body.get("order_id")  # 允许 NULL -> 后续 NEED_INFO（§19.1）
-    t = await _persist(request).create_ticket(tenant_id=ctx.tenant_id, user_id=ctx.user_id,
-                                              order_id=order_id, intent=intent)
+    workflow_version = "v4" if _deps(request).settings.workflow_v4_enabled else "v3"
+    t = await _persist(request).create_ticket(
+        tenant_id=ctx.tenant_id, user_id=ctx.user_id, order_id=order_id, intent=intent,
+        workflow_version=workflow_version)
     tid = t["ticket_id"]
     if body.get("initial_message"):
         msg = body["initial_message"]
@@ -127,7 +135,8 @@ async def append_message(ticket_id: str, body: dict, request: Request, ctx: Ctx 
     await _load_memory(request, state, query=text)
     thread_key = f"{ticket_id}:{run_id}"
     try:
-        result = await deps.graph.ainvoke(state, config={"configurable": {"thread_id": thread_key}})
+        graph = _graph_for_ticket(request, ticket)
+        result = await graph.ainvoke(state, config={"configurable": {"thread_id": thread_key}})
     except Exception as exc:  # 图异常不得影响已提交的持久化
         await persist.set_run_status(tenant_id=ctx.tenant_id, run_id=run_id, status="FAILED")
         await persist.append_ticket_event(tenant_id=ctx.tenant_id, ticket_id=ticket_id,
@@ -197,7 +206,7 @@ async def decide_approval(ticket_id: str, body: dict, request: Request, ctx: Ctx
     run_id = ticket.get("active_run_id")
     thread_key = f"{ticket_id}:{run_id}"
     try:
-        resumed = await deps.graph.ainvoke(
+        resumed = await _graph_for_ticket(request, ticket).ainvoke(
             Command(resume={"approval_id": approval_id, "decision": decision}),
             config={"configurable": {"thread_id": thread_key}})
     except Exception as exc:

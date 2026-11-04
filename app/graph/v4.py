@@ -1,120 +1,223 @@
 # -*- coding: utf-8 -*-
-"""V4 九节点工作流装配：复用 V3 安全服务，保留 V3 图兼容。"""
+"""V4 九节点工作流：独立检索、候选提案、确定性验证与安全执行。"""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from functools import partial
 
 from langgraph.graph import END, START, StateGraph
 
+from app.domain.schemas import DecisionProposal
 from app.graph import nodes
 from app.graph.deps import Deps
 from app.graph.retry import build_node_retry_policy
 from app.graph.state import AgentState
 
 RESPOND = "response_composer"
+PROMPT_VERSION_DECISION = "decision-v4.0"
+WRITE_ACTIONS = {"REQUEST_REFUND_ONLY", "REQUEST_RETURN_REFUND", "INTERCEPT_PARCEL",
+                 "CREATE_RESHIPMENT", "EXPEDITE_DELIVERY"}
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 async def policy_retrieval(state, deps: Deps) -> dict:
-    """独立检索节点：不依赖 PolicyDecision.required_clause_ids。"""
-    update = await nodes.policy_evidence(state, deps)
-    return {"retrieval_bundle": update.get("evidence_bundle") or {}, **update}
+    """独立混合检索；不读取 policy_decision 或 required_clause_ids。"""
+    query = " ".join(str(m.get("content", "")) for m in state.get("messages", [])[-4:])
+    filters = {"category": (state.get("order_snapshot") or {}).get("category")}
+    try:
+        chunks, diagnostics = await deps.retriever.discover_ex(
+            tenant_id=state["tenant_id"], query=query or "售后", filters=filters, history=[])
+    except Exception as exc:
+        return {"retrieval_bundle": {"status": "ERROR", "items": [],
+                                     "retrieval_diagnostics": {"error": str(exc)[:200]}},
+                "evidence_status": "ERROR", "error_code": "POLICY_RETRIEVAL_FAILED"}
 
+    fetched = {chunk.clause_id: chunk for chunk in chunks}
+    as_of = state.get("claim_at") or _now()
+    for group_id in {chunk.clause_group_id for chunk in chunks if chunk.clause_group_id}:
+        for chunk in await deps.retriever.clauses.fetch_group(state["tenant_id"], group_id, as_of):
+            fetched.setdefault(chunk.clause_id, chunk)
 
-async def llm_decision(state, deps: Deps) -> dict:
-    update = await nodes.action_planner(state, deps)
-    proposal = {
-        "decision": "NEED_INFO",
-        "action": None,
-        "order_id": (state.get("slots") or {}).get("order_id"),
-        "amount_minor": (state.get("slots") or {}).get("requested_amount_minor"),
-        "evidence_ids": [i.get("clause_id") for i in
-                         ((state.get("retrieval_bundle") or {}).get("items") or [])],
-    }
-    plan = update.get("action_plan") or {}
-    if plan.get("actions"):
-        proposal["action"] = plan["actions"][0].get("action")
-        proposal["decision"] = "ALLOW"
-    elif plan.get("needs_more_info"):
-        proposal["clarification_question"] = "、".join(plan.get("missing_information") or [])
-    return {**update, "decision_proposal": proposal}
-
-
-async def decision_guard(state, deps: Deps) -> dict:
-    """确定性验证优先，其次风控；验证失败绝不进入 SafeExecution。"""
-    plan = state.get("action_plan") or {}
-    validation = {
-        "status": "NEED_INFO",
-        "validated_actions": [],
-        "validated_amount_minor": None,
-        "policy_version": (state.get("retrieval_bundle") or {}).get("policy_version"),
-        "facts_version": state.get("facts_version"),
-        "validated_evidence_ids": [],
-        "reason_codes": [],
-    }
-    decision = state.get("policy_decision") or {}
-    evidence_ok = state.get("evidence_status") == "OK"
-    if state.get("error_code"):
-        validation["status"] = "MANUAL"
-        validation["reason_codes"] = [state["error_code"]]
-    elif decision.get("decision") == "ALLOW" and evidence_ok and plan.get("actions"):
-        validation["status"] = "VERIFIED"
-        validation["validated_actions"] = decision.get("authorized_actions") or []
-        validation["validated_amount_minor"] = state.get("quote_amount_minor")
-        validation["validated_evidence_ids"] = [
-            i.get("clause_id") for i in ((state.get("retrieval_bundle") or {}).get("items") or [])
-        ]
-    else:
-        validation["status"] = {"DENY": "REJECTED", "MANUAL": "MANUAL"}.get(
-            decision.get("decision"), "NEED_INFO")
-        validation["reason_codes"] = [decision.get("reason_code") or "VALIDATION_FAILED"]
-
-    out = {"validation_result": validation,
-           "validated_actions": validation["validated_actions"],
-           "validated_amount_minor": validation["validated_amount_minor"],
-           "validated_evidence_ids": validation["validated_evidence_ids"]}
-    if validation["status"] != "VERIFIED":
-        task_id = await deps.persistence.ensure_policy_review_task(
-            tenant_id=state["tenant_id"], ticket_id=state["ticket_id"],
-            thread_id=state.get("thread_id"),
-            policy_version=(state.get("retrieval_bundle") or {}).get("policy_version"),
-            reason_code=validation["reason_codes"][0] if validation["reason_codes"] else "POLICY_REVIEW",
-            retrieval_bundle=state.get("retrieval_bundle") or {},
-            facts_snapshot={"order": state.get("order_snapshot"),
-                            "finance": state.get("finance_snapshot")})
-        out["manual_review_task_id"] = task_id
-        return out
-
-    prepared = await nodes.action_preparation(state, deps)
-    out.update(prepared)
-    if prepared.get("error_code"):
-        out["validation_result"] = {**validation, "status": "MANUAL",
-                                   "reason_codes": [prepared["error_code"]]}
-        out["validated_actions"] = []
-        out["validated_amount_minor"] = None
-        return out
-    risk = await nodes.risk_authorization({**state, **prepared}, deps)
-    out.update(risk)
-    out["risk_authorization"] = {
-        "authorization": {"AUTO_APPROVE": "AUTO", "REVIEW": "REVIEW", "DENY": "DENY",
-                          "MANUAL": "REVIEW", "NEED_INFO": "REVIEW"}[risk.get("risk_decision")],
-        "risk_rule_version": "risk-rules-v1",
-        "reason_codes": risk.get("risk_reason_codes") or [],
-    }
+    versions = sorted({chunk.version for chunk in fetched.values() if chunk.version})
+    orphan_exceptions = [chunk.clause_id for chunk in fetched.values()
+                         if chunk.is_exception and not chunk.clause_group_id]
+    status = ("INSUFFICIENT" if not fetched else
+              "CONFLICT" if orphan_exceptions else
+              "STALE" if len(versions) > 1 else "OK")
+    items = [{
+        "clause_id": chunk.clause_id, "document_id": chunk.doc_id,
+        "policy_version": chunk.version, "content": chunk.text,
+        "source_ref": chunk.doc_id, "clause_group_id": chunk.clause_group_id,
+        "is_exception": chunk.is_exception,
+    } for chunk in fetched.values()]
+    bundle = {"status": status, "items": items,
+              "policy_version": versions[0] if len(versions) == 1 else None,
+              "as_of": as_of, "query_trace": [{"query": query, "filters": filters}],
+              "retrieval_diagnostics": diagnostics}
+    out = {"retrieval_bundle": bundle, "evidence_status": status}
+    if status in ("INSUFFICIENT", "CONFLICT", "STALE", "ERROR"):
+        out["manual_review_task_id"] = await _ensure_policy_review(state, deps, bundle, status)
+        out["public_status"] = "PROCESSING"
     return out
 
 
+async def _ensure_policy_review(state, deps: Deps, bundle: dict, reason_code: str) -> str:
+    return await deps.persistence.ensure_policy_review_task(
+        tenant_id=state["tenant_id"], ticket_id=state["ticket_id"],
+        thread_id=state.get("thread_id"), policy_version=bundle.get("policy_version"),
+        reason_code=reason_code, retrieval_bundle=bundle,
+        facts_snapshot={"order": state.get("order_snapshot"),
+                        "finance": state.get("finance_snapshot")})
+
+
+async def llm_decision(state, deps: Deps) -> dict:
+    """基于事实和检索证据生成强类型候选方案；失败安全降级为 MANUAL。"""
+    if deps.llm is None:
+        proposal = DecisionProposal(decision="MANUAL", reason_code="LLM_DISABLED",
+                                    missing_fields=["LLM_UNAVAILABLE"])
+        return {"decision_proposal": proposal.model_dump(mode="json"), "error_code": "LLM_DISABLED"}
+
+    bundle = state.get("retrieval_bundle") or {}
+    evidence = bundle.get("items") or []
+    user = {
+        "message": state["messages"][-1].get("content", "") if state.get("messages") else "",
+        "facts": {"order": state.get("order_snapshot") or {},
+                  "finance": state.get("finance_snapshot") or {},
+                  "slots": state.get("slots") or {}},
+        "evidence": [{"id": item.get("clause_id"), "text": item.get("content"),
+                      "is_exception": item.get("is_exception")} for item in evidence],
+        "evidence_ids": [item.get("clause_id") for item in evidence],
+        "action_whitelist": sorted(WRITE_ACTIONS),
+    }
+    try:
+        proposal, audit = await deps.llm.structured(
+            messages=[{"role": "system", "content": deps.prompts.get("decision_proposal", "")},
+                      {"role": "user", "content": str(user)}],
+            schema_model=DecisionProposal, prompt_version=PROMPT_VERSION_DECISION, temperature=0.0)
+        await deps.persistence.record_llm_call(
+            tenant_id=state["tenant_id"], ticket_id=state.get("ticket_id"),
+            run_id=state.get("run_id"), trace_id=state.get("trace_id"), node="llm_decision",
+            model=audit.get("model"), prompt_version=PROMPT_VERSION_DECISION, status="SUCCESS",
+            request_hash=audit.get("request_hash"), response_hash=audit.get("response_hash"),
+            input_tokens=(audit.get("usage") or {}).get("prompt_tokens"),
+            output_tokens=(audit.get("usage") or {}).get("completion_tokens"),
+            latency_ms=audit.get("latency_ms"))
+        return {"decision_proposal": proposal.model_dump(mode="json")}
+    except Exception as exc:
+        proposal = DecisionProposal(decision="MANUAL", reason_code="LLM_DECISION_FAILED",
+                                    missing_fields=["LLM_UNAVAILABLE"])
+        await deps.persistence.record_llm_call(
+            tenant_id=state["tenant_id"], ticket_id=state.get("ticket_id"),
+            run_id=state.get("run_id"), trace_id=state.get("trace_id"), node="llm_decision",
+            model=deps.settings.llm_model, prompt_version=PROMPT_VERSION_DECISION, status="ERROR",
+            error_code=str(exc)[:200])
+        return {"decision_proposal": proposal.model_dump(mode="json"),
+                "error_code": "LLM_DECISION_FAILED"}
+
+
+async def decision_guard(state, deps: Deps) -> dict:
+    """先确定性验证候选方案，再执行风控；不读取旧 policy_decision。"""
+    proposal = state.get("decision_proposal") or {}
+    bundle = state.get("retrieval_bundle") or {}
+    order = state.get("order_snapshot") or {}
+    finance = state.get("finance_snapshot") or {}
+    slots = state.get("slots") or {}
+    evidence_ids = {item.get("clause_id") for item in bundle.get("items", [])}
+    has_exception = any(item.get("is_exception") for item in bundle.get("items", []))
+
+    if proposal.get("decision") == "NEED_INFO":
+        return _validation_result(state, "NEED_INFO", [], None, ["NEED_INFO"])
+    if proposal.get("decision") == "DENY":
+        return _validation_result(state, "REJECTED", [], None,
+                                  [proposal.get("reason_code") or "REJECTED"])
+    if proposal.get("decision") != "ALLOW":
+        return await _manual_review(state, deps, ["POLICY_REVIEW"])
+
+    action = proposal.get("action")
+    order_id = proposal.get("order_id") or slots.get("order_id") or order.get("order_id")
+    reasons: list[str] = []
+    if action not in WRITE_ACTIONS:
+        reasons.append("ACTION_NOT_ALLOWED")
+    if not order_id or order_id != (order.get("order_id") or order_id):
+        reasons.append("ORDER_ID_MISMATCH")
+    if (state.get("intent_result") or {}).get("intent") not in (
+            "REFUND_ONLY", "RETURN_REFUND", "INTERCEPT_REFUND", "RESHIPMENT", "EXPEDITE"):
+        reasons.append("INTENT_NOT_EXECUTABLE")
+    if [item for item in proposal.get("evidence_ids", []) if item not in evidence_ids]:
+        reasons.append("EVIDENCE_NOT_FOUND")
+    if not proposal.get("evidence_ids") or not has_exception:
+        reasons.append("EVIDENCE_INCOMPLETE")
+    if proposal.get("amount_minor") is not None:
+        balance = finance.get("refundable_balance_minor")
+        if balance is None or not (0 < proposal["amount_minor"] <= int(balance)):
+            reasons.append("AMOUNT_EXCEEDS_REFUNDABLE")
+    if action in ("REQUEST_REFUND_ONLY", "REQUEST_RETURN_REFUND") and proposal.get("amount_minor") is None:
+        reasons.append("AMOUNT_MISSING")
+
+    if reasons:
+        status = "MANUAL" if any(code.startswith("EVIDENCE") for code in reasons) else "REJECTED"
+        result = _validation_result(state, status, [], None, reasons)
+        if status == "MANUAL":
+            return await _manual_review(state, deps, reasons, result)
+        return result
+
+    validated = _validation_result(state, "VERIFIED", [action], proposal.get("amount_minor"), [])
+    risk = await nodes.risk_authorization({**state, "action_plan": {
+        "actions": [{"action": action, "order_id": order_id,
+                     "requested_amount_minor": proposal.get("amount_minor")}]},
+        "quote_amount_minor": proposal.get("amount_minor")}, deps)
+    authorization = {"AUTO_APPROVE": "AUTO", "REVIEW": "REVIEW", "DENY": "DENY",
+                     "MANUAL": "REVIEW", "NEED_INFO": "REVIEW"}[risk.get("risk_decision")]
+    risk_result = {"authorization": authorization,
+                   "reason_codes": risk.get("risk_reason_codes") or [],
+                   "strategy_version": "risk-rules-v1"}
+    return {**validated, "risk_result": risk_result}
+
+
+def _validation_result(state, status, actions, amount, reasons) -> dict:
+    result = {"validation_status": status, "authorized_actions": actions,
+              "validated_amount_minor": amount,
+              "evidence_ids": (state.get("decision_proposal") or {}).get("evidence_ids", []),
+              "facts_version": state.get("facts_version"),
+              "policy_version": (state.get("retrieval_bundle") or {}).get("policy_version"),
+              "failure_reasons": reasons}
+    return {"validated_decision": result, "validation_result": result,
+            "validated_actions": actions, "validated_amount_minor": amount}
+
+
+async def _manual_review(state, deps: Deps, reasons, base=None):
+    task_id = await _ensure_policy_review(state, deps, state.get("retrieval_bundle") or {},
+                                          reasons[0] if reasons else "POLICY_REVIEW")
+    out = base or _validation_result(state, "MANUAL", [], None, reasons)
+    return {**out, "manual_review_task_id": task_id, "public_status": "PROCESSING"}
+
+
 async def safe_execution(state, deps: Deps) -> dict:
-    """准备、最终复核与幂等命令提交合并在一个图节点。"""
-    guarded = await nodes.pre_execution_guard(state, deps)
+    """准备、执行前复核与幂等命令提交合并在一个图节点。"""
+    proposal = state.get("decision_proposal") or {}
+    order_id = proposal.get("order_id") or (state.get("slots") or {}).get("order_id")
+    plan = {"order_id": order_id, "actions": [{
+        "action": proposal.get("action"), "order_id": order_id,
+        "requested_amount_minor": proposal.get("amount_minor")}]}
+    prepared = await nodes.action_preparation(
+        {**state, "action_plan": plan, "policy_decision": {"policy_decision_id": None}}, deps)
+    if prepared.get("error_code"):
+        return {**prepared, "submit_status": "BLOCKED", "command_ids": []}
+    guarded = await nodes.pre_execution_guard({**state, **prepared, "action_plan": plan}, deps)
     if guarded.get("error_code"):
         return {**guarded, "submit_status": "BLOCKED", "command_ids": []}
-    update = await nodes.command_submitter(state, deps)
-    return {**update, "submit_status": "PERSISTED" if update.get("command_ids") else "BLOCKED"}
+    submitted = await nodes.command_submitter(
+        {**state, **prepared, "action_plan": plan,
+         "policy_decision": {"authorized_actions": state.get("validated_actions")}}, deps)
+    return {**submitted, "submit_status": "PERSISTED" if submitted.get("command_ids") else "BLOCKED"}
 
 
 def route_after_retrieval(state) -> str:
     status = state.get("evidence_status")
-    if status in ("INSUFFICIENT", "CONFLICT", "STALE"):
+    if status in ("INSUFFICIENT", "CONFLICT", "STALE", "ERROR"):
         return "manual"
     if (state.get("intent_result") or {}).get("speech_act") == "ELIGIBILITY_QUERY":
         return "respond"
@@ -122,9 +225,9 @@ def route_after_retrieval(state) -> str:
 
 
 def route_after_guard(state) -> str:
-    result = state.get("validation_result") or {}
-    risk = (state.get("risk_authorization") or {}).get("authorization")
-    if result.get("status") != "VERIFIED":
+    result = state.get("validated_decision") or {}
+    risk = (state.get("risk_result") or {}).get("authorization")
+    if result.get("validation_status") != "VERIFIED":
         return "respond"
     if risk == "DENY":
         return "respond"
@@ -140,14 +243,11 @@ def route_after_execution(state) -> str:
 
 
 def build_v4_graph(deps: Deps, checkpointer=None):
-    """注册 9 个 V4 图节点；底层服务复用 V3 实现。"""
+    """注册 9 个 V4 图节点；底层安全服务复用既有实现。"""
     g = StateGraph(AgentState)
 
     def add(name, fn):
-        if name in ("policy_retrieval", "llm_decision"):
-            retry = build_node_retry_policy(deps.settings)
-        else:
-            retry = None
+        retry = build_node_retry_policy(deps.settings) if name in ("policy_retrieval", "llm_decision") else None
         g.add_node(name, partial(fn, deps=deps), retry_policy=retry)
 
     add("intent_guardrail", nodes.intent_guardrail)

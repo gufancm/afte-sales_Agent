@@ -43,20 +43,22 @@ class SqlPersistence:
 
     # ---------------- 工单 / 消息 / 运行 ----------------
     async def create_ticket(self, *, tenant_id: str, user_id: str, order_id: str | None,
-                            intent: str, status: str = "NEW") -> dict:
+                            intent: str, status: str = "NEW",
+                            workflow_version: str = "v3") -> dict:
         tid = _uuid()
         async with tenant_transaction(self.sf, tenant_id) as s:
             await s.execute(text(
                 "INSERT INTO aftersale_tickets(ticket_id,tenant_id,user_id,order_id,intent,status,version) "
-                "VALUES(:tid,:ten,:uid,:oid,:intent,:st,0)"),
-                {"tid": tid, "ten": tenant_id, "uid": user_id, "oid": order_id, "intent": intent, "st": status})
+                "VALUES(:tid,:ten,:uid,:oid,:intent,:st,0,:wf)"),
+                {"tid": tid, "ten": tenant_id, "uid": user_id, "oid": order_id, "intent": intent,
+                 "st": status, "wf": workflow_version})
         M.TICKETS.inc()
         return {"ticket_id": tid, "status": status, "version": 0}
 
     async def get_ticket(self, *, tenant_id: str, ticket_id: str) -> dict | None:
         async with tenant_transaction(self.sf, tenant_id) as s:
             row = (await s.execute(text(
-                "SELECT ticket_id,user_id,order_id,intent,status,version,event_sequence,active_run_id "
+                "SELECT ticket_id,user_id,order_id,intent,status,version,event_sequence,active_run_id,workflow_version "
                 "FROM aftersale_tickets WHERE ticket_id=:tid"), {"tid": ticket_id})).mappings().first()
         return dict(row) if row else None
 

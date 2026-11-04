@@ -15,6 +15,7 @@ from app.api.routes import router
 from app.bootstrap import build_deps
 from app.config import get_settings
 from app.graph.build import build_graph
+from app.graph.v4 import build_v4_graph
 from app.graph.checkpointer import open_checkpointer
 from app.observability import metrics as M
 
@@ -45,7 +46,11 @@ async def lifespan(app: FastAPI):
     if not ckpt.durable:
         log.warning("Checkpointer 非持久化：%s（重启后待审批的 interrupt 会丢失）", ckpt.detail)
     app.state.checkpointer = ckpt
-    deps.graph = build_graph(deps, checkpointer=ckpt.saver)  # type: ignore[attr-defined]
+    # 同时构建 V3/V4：deps.graph 保持 V3 兼容；V4 仅按工单版本路由选择。
+    v3_settings = deps.settings.model_copy(update={"workflow_v4_enabled": False})
+    v3_deps = deps.__class__(**{**deps.__dict__, "settings": v3_settings})
+    deps.graph = build_graph(v3_deps, checkpointer=ckpt.saver)
+    deps.v4_graph = build_v4_graph(deps, checkpointer=ckpt.saver)
     app.state.deps = deps
     app.state.startup_violations = violations
     try:

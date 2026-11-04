@@ -247,24 +247,43 @@ class DecisionProposal(StrictOutput):
     reason_code: str | None = None
     evidence_ids: list[str] = Field(default_factory=list)
     explanation: str | None = None
-    clarification_question: str | None = None
+    missing_fields: list[str] = Field(default_factory=list)
+
+
+class RetrievalEvidenceItem(StrictOutput):
+    clause_id: str
+    document_id: str
+    policy_version: str
+    content: str
+    source_ref: str
+    clause_group_id: str | None = None
+    is_exception: bool = False
+
+
+class RetrievalBundle(StrictOutput):
+    status: Literal["OK", "INSUFFICIENT", "STALE", "CONFLICT", "ERROR"]
+    items: list[RetrievalEvidenceItem] = Field(default_factory=list)
+    policy_version: str | None = None
+    as_of: str | None = None
+    query_trace: list[dict] = Field(default_factory=list)
+    retrieval_diagnostics: dict = Field(default_factory=dict)
 
 
 class ValidatedDecision(StrictOutput):
     """服务端验证结果；validated_* 只能由确定性逻辑写入。"""
 
-    status: Literal["VERIFIED", "REJECTED", "NEED_INFO", "MANUAL"]
-    validated_actions: list[str] = Field(default_factory=list)
+    validation_status: Literal["VERIFIED", "REJECTED", "NEED_INFO", "MANUAL"]
+    authorized_actions: list[str] = Field(default_factory=list)
     validated_amount_minor: int | None = Field(default=None, ge=0)
+    evidence_ids: list[str] = Field(default_factory=list)
     policy_version: str | None = None
     facts_version: str | None = None
-    validated_evidence_ids: list[str] = Field(default_factory=list)
-    reason_codes: list[str] = Field(default_factory=list)
+    failure_reasons: list[str] = Field(default_factory=list)
 
 
 class RiskAuthorization(StrictOutput):
     authorization: Literal["AUTO", "REVIEW", "DENY"]
-    risk_rule_version: str = "risk-rules-v1"
+    strategy_version: str = "risk-rules-v1"
     reason_codes: list[str] = Field(default_factory=list)
 
 
