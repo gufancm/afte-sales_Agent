@@ -56,6 +56,8 @@ flowchart TB
   DecisionGuard 独立完成验证与风控，SafeExecution 合并准备/复核/幂等提交，政策不确定转后台核实任务。
   `policy_retrieval` 不依赖旧 `policy_decision`；`llm_decision` 输出强类型 `DecisionProposal`；
   `decision_guard` 直接校验证据、动作、订单与金额，`NEED_INFO`/`REJECTED` 不误建政策核实任务。
+  V4 验证结果会落库为带 `source=V4` 的可审计决策记录；风控优先消费 `validated_decision`，
+  SafeExecution 在无验证或无授权时 fail-closed，不再伪造旧 PolicyEngine 裁决。
 - **MCP 标准协议**：官方 SDK 的 stdio Server（JSON-RPC 2.0），15 个售后工具（10 只读 / 5 写）带 `readOnlyHint` 与必填幂等键，
   任意 MCP Host 可直接接入；业务逻辑仍由既有网关/处理器单点实现，不重复实现规则。
 - **可恢复 HITL**：Postgres Checkpointer 持久化 `interrupt()` 暂停点（`CHECKPOINT_BACKEND=memory|postgres`），

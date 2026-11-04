@@ -275,6 +275,8 @@ class ValidatedDecision(StrictOutput):
     validation_status: Literal["VERIFIED", "REJECTED", "NEED_INFO", "MANUAL"]
     authorized_actions: list[str] = Field(default_factory=list)
     validated_amount_minor: int | None = Field(default=None, ge=0)
+    amount_cap_minor: int | None = Field(default=None, ge=0)
+    decision_id: str | None = None
     evidence_ids: list[str] = Field(default_factory=list)
     policy_version: str | None = None
     facts_version: str | None = None

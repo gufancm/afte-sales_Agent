@@ -1489,7 +1489,8 @@ async def pre_execution_guard(state, deps: Deps) -> dict:
         # 计划里有动作但都不是可执行写动作（如 ESCALATE_MANUAL/CLOSE_TICKET）-> 转人工，不放行
         return {"error_code": "UNSUPPORTED_ACTION"} if _plan_actions(state) else {"error_code": None}
     # 执行前再核一次政策授权：防止审批期间计划/事实被替换成未授权动作
-    policy_authorized = set((state.get("policy_decision") or {}).get("authorized_actions") or [])
+    policy_authorized = set(state.get("validated_actions")
+                            or (state.get("policy_decision") or {}).get("authorized_actions") or [])
     if any(a not in policy_authorized for a in actions):
         return {"error_code": "POLICY_ACTION_NOT_AUTHORIZED"}
     common = _guard_common(state)
@@ -1525,7 +1526,8 @@ async def command_submitter(state, deps: Deps) -> dict:
     # 纵深防御：只提交“本轮已被风控逐动作评估过”的写动作，否则一条命令都不写（fail-closed）
     actions = _write_actions(state)
     # 第一道闸：政策动作授权（计划动作必须 ⊆ policy_decision.authorized_actions）
-    policy_authorized = set((state.get("policy_decision") or {}).get("authorized_actions") or [])
+    policy_authorized = set(state.get("validated_actions")
+                            or (state.get("policy_decision") or {}).get("authorized_actions") or [])
     if any(a not in policy_authorized for a in actions):
         await deps.persistence.append_audit(
             tenant_id=state["tenant_id"], ticket_id=state["ticket_id"], event="COMMAND_SUBMIT_BLOCKED",
@@ -1831,12 +1833,20 @@ async def _remember_turn(state, deps: Deps, rtype: str, text: str) -> None:
 async def response_composer(state, deps: Deps) -> dict:
     """唯一回复出口：按 response_type 分发；审计在此统一落库（关键资金事件另在节点内落库）。"""
     rtype = classify_response(state)
+    public_status = state.get("public_status")
+    if public_status == "PROCESSING":
+        rtype = "PROCESSING"
     text, meta = _compose_text(state, rtype)
+    if public_status == "PROCESSING":
+        text = (state.get("response_text_hint")
+                or "您的申请已受理，正在处理中，可在工单内查看进度。")
+        meta = {"source": "v4_public_status"}
     status = _STATUS_BY_TYPE.get(rtype, "COMPLETED")
     await deps.persistence.append_audit(
         tenant_id=state["tenant_id"], ticket_id=state["ticket_id"], event="RESPONDED",
         payload={"response_type": rtype, "response_status": status, "text": text,
-                 "policy_decision_id": (state.get("policy_decision") or {}).get("policy_decision_id"),
+                 "policy_decision_id": ((state.get("policy_decision") or {}).get("policy_decision_id")
+                                        or (state.get("validated_decision") or {}).get("decision_id")),
                  "policy_template": meta, "plan_id": state.get("plan_id"),
                  "command_ids": state.get("command_ids") or []})
     channels = state.get("channels") or ([state.get("channel")] if state.get("channel") else list(DEFAULT_CHANNELS))

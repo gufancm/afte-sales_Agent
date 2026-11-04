@@ -9,7 +9,7 @@ pytest.importorskip("langgraph")
 from app.bootstrap import build_deps  # noqa: E402
 from app.config import Settings  # noqa: E402
 from app.graph.build import build_graph  # noqa: E402
-from app.graph.v4 import decision_guard, policy_retrieval  # noqa: E402
+from app.graph.v4 import decision_guard, policy_retrieval, safe_execution  # noqa: E402
 
 
 def _deps(*, v4: bool = True):
@@ -116,3 +116,33 @@ async def test_v4_llm_disabled_does_not_emit_write_command():
     result = await graph.ainvoke(_state())
     assert result.get("response_status") in ("WAITING_USER", "COMPLETED")
     assert deps.persistence.commands == []
+
+
+def test_risk_uses_validated_decision_not_legacy_policy():
+    from app.risk_rules import evaluate_risk
+    from app.domain.enums import RiskDecision
+
+    state = {"validated_decision": {"validated_amount_minor": 5000,
+                                    "amount_cap_minor": 9900},
+             "finance_snapshot": {"refundable_balance_minor": 9900,
+                                  "reserved_amount_minor": 0}}
+    outcome = evaluate_risk("REQUEST_REFUND_ONLY", state)
+    assert outcome.decision == RiskDecision.AUTO_APPROVE
+
+
+@pytest.mark.asyncio
+async def test_safe_execution_requires_v4_validation_and_approval():
+    deps = _deps()
+    proposal = _proposal()
+    blocked = await safe_execution(_state(decision_proposal=proposal), deps)
+    assert blocked["submit_status"] == "BLOCKED"
+    assert blocked["error_code"] == "V4_VALIDATION_REQUIRED"
+    assert deps.persistence.commands == []
+
+    approved = await safe_execution(_state(
+        decision_proposal=proposal,
+        validated_decision={"validation_status": "VERIFIED", "decision_id": "vd1",
+                            "amount_cap_minor": 9900},
+        validated_actions=["REQUEST_REFUND_ONLY"], risk_result={"authorization": "AUTO"},
+    ), deps)
+    assert approved["submit_status"] in ("PERSISTED", "BLOCKED")

@@ -80,8 +80,13 @@ def _evaluate_refund(state: dict, params: dict | None = None) -> RiskOutcome:
       - 买家退款历史（频次 / 近 30 天累计金额 / 黑名单）来自 `state["risk_facts"]`；
       - **缺失或降级 -> MANUAL**（不默认放行）；黑名单 -> DENY（可配置）。
     """
-    cap = ((state.get("policy_decision") or {}).get("amount_cap") or {}).get("cap_minor")
-    amount = state.get("quote_amount_minor")
+    validated = state.get("validated_decision") or {}
+    if validated:
+        cap = validated.get("amount_cap_minor")
+        amount = validated.get("validated_amount_minor")
+    else:
+        cap = ((state.get("policy_decision") or {}).get("amount_cap") or {}).get("cap_minor")
+        amount = state.get("quote_amount_minor")
     if amount is None:
         return _manual("REFUND_QUOTE_MISSING")
     fin = state.get("finance_snapshot") or {}

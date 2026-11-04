@@ -165,10 +165,22 @@ async def decision_guard(state, deps: Deps) -> dict:
         return result
 
     validated = _validation_result(state, "VERIFIED", [action], proposal.get("amount_minor"), [])
-    risk = await nodes.risk_authorization({**state, "action_plan": {
-        "actions": [{"action": action, "order_id": order_id,
-                     "requested_amount_minor": proposal.get("amount_minor")}]},
-        "quote_amount_minor": proposal.get("amount_minor")}, deps)
+    balance = int(finance.get("refundable_balance_minor") or 0)
+    validated["validated_decision"]["amount_cap_minor"] = balance
+    decision_id = await deps.persistence.record_policy_decision(
+        policy_decision_id=None, tenant_id=state["tenant_id"], ticket_id=state["ticket_id"],
+        decision="ALLOW", reason_code=proposal.get("reason_code") or "V4_VALIDATED",
+        rule_ids=["V4_VALIDATED"], required_clause_ids=proposal.get("evidence_ids") or [],
+        amount_cap_minor=balance, policy_version=(state.get("retrieval_bundle") or {}).get("policy_version"),
+        time_basis="claim_at", as_of=state.get("claim_at"),
+        scope={"source": "v4_decision_guard"}, trace={"source": "V4", "validation": validated})
+    validated["validated_decision"]["decision_id"] = decision_id
+    risk = await nodes.risk_authorization(
+        {**state, **validated, "action_plan": {
+            "actions": [{"action": action, "order_id": order_id,
+                         "requested_amount_minor": proposal.get("amount_minor")}]},
+            "policy_decision": {"policy_decision_id": decision_id, "decision": "ALLOW",
+                                "authorized_actions": [action]}}, deps)
     authorization = {"AUTO_APPROVE": "AUTO", "REVIEW": "REVIEW", "DENY": "DENY",
                      "MANUAL": "REVIEW", "NEED_INFO": "REVIEW"}[risk.get("risk_decision")]
     risk_result = {"authorization": authorization,
@@ -198,20 +210,37 @@ async def _manual_review(state, deps: Deps, reasons, base=None):
 async def safe_execution(state, deps: Deps) -> dict:
     """准备、执行前复核与幂等命令提交合并在一个图节点。"""
     proposal = state.get("decision_proposal") or {}
+    validated = state.get("validated_decision") or {}
+    if validated.get("validation_status") != "VERIFIED":
+        return {"submit_status": "BLOCKED", "command_ids": [],
+                "error_code": "V4_VALIDATION_REQUIRED"}
+    risk = (state.get("risk_result") or {}).get("authorization")
+    approved = state.get("approval_status") == "APPROVED"
+    if risk not in ("AUTO", "REVIEW") or (risk == "REVIEW" and not approved):
+        return {"submit_status": "BLOCKED", "command_ids": [],
+                "error_code": "V4_AUTHORIZATION_REQUIRED"}
     order_id = proposal.get("order_id") or (state.get("slots") or {}).get("order_id")
+    action = proposal.get("action")
     plan = {"order_id": order_id, "actions": [{
-        "action": proposal.get("action"), "order_id": order_id,
+        "action": action, "order_id": order_id,
         "requested_amount_minor": proposal.get("amount_minor")}]}
+    decision_adapter = {
+        "policy_decision_id": validated.get("decision_id"),
+        "decision": "ALLOW",
+        "policy_version": validated.get("policy_version"),
+        "authorized_actions": state.get("validated_actions") or [],
+        "amount_cap": {"cap_minor": validated.get("amount_cap_minor")},
+    }
     prepared = await nodes.action_preparation(
-        {**state, "action_plan": plan, "policy_decision": {"policy_decision_id": None}}, deps)
+        {**state, "action_plan": plan, "policy_decision": decision_adapter}, deps)
     if prepared.get("error_code"):
         return {**prepared, "submit_status": "BLOCKED", "command_ids": []}
-    guarded = await nodes.pre_execution_guard({**state, **prepared, "action_plan": plan}, deps)
+    guarded = await nodes.pre_execution_guard(
+        {**state, **prepared, "action_plan": plan, "policy_decision": decision_adapter}, deps)
     if guarded.get("error_code"):
         return {**guarded, "submit_status": "BLOCKED", "command_ids": []}
     submitted = await nodes.command_submitter(
-        {**state, **prepared, "action_plan": plan,
-         "policy_decision": {"authorized_actions": state.get("validated_actions")}}, deps)
+        {**state, **prepared, "action_plan": plan, "policy_decision": decision_adapter}, deps)
     return {**submitted, "submit_status": "PERSISTED" if submitted.get("command_ids") else "BLOCKED"}
 
 
