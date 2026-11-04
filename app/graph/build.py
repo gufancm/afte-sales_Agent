@@ -18,11 +18,14 @@ from app.graph import nodes
 from app.graph.deps import Deps
 from app.graph.retry import retry_policy_for
 from app.graph.state import AgentState
+from app.graph.v4 import build_v4_graph
 
 RESPOND = "response_composer"
 
 
 def build_graph(deps: Deps, checkpointer=None):
+    if getattr(deps.settings, "workflow_v4_enabled", False):
+        return build_v4_graph(deps, checkpointer)
     g = StateGraph(AgentState)
 
     def add(name: str, fn) -> None:

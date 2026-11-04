@@ -32,6 +32,7 @@ class InMemoryPersistence:
         self.commands: list[dict] = []
         self.outbox_published: list[str] = []
         self.reconciliations: list[dict] = []
+        self.policy_review_tasks: list[dict] = []
         self.inbox: list[dict] = []
         self.policy_decisions: list[dict] = []
         self.tool_calls: list[dict] = []
@@ -261,6 +262,24 @@ class InMemoryPersistence:
         self.reconciliations.append({"task_id": tid, "tenant_id": tenant_id, "ticket_id": ticket_id,
                                      "refund_request_id": refund_request_id, "command_id": command_id,
                                      "reason": reason, "status": "PENDING", "attempt_count": 0})
+        return tid
+
+    async def ensure_policy_review_task(self, *, tenant_id, ticket_id, thread_id=None,
+                                        policy_version=None, reason_code, retrieval_bundle, facts_snapshot):
+        """幂等创建后台政策核实任务（内存实现，供测试与本地运行）。"""
+        for task in self.policy_review_tasks:
+            if (task.get("tenant_id") == tenant_id and task.get("ticket_id") == ticket_id
+                    and task.get("reason_code") == reason_code
+                    and task.get("policy_version") == policy_version
+                    and task.get("status") in ("PENDING", "RUNNING")):
+                return task["task_id"]
+        tid = _uuid()
+        self.policy_review_tasks.append({
+            "task_id": tid, "tenant_id": tenant_id, "ticket_id": ticket_id, "thread_id": thread_id,
+            "workflow_version": "v4", "policy_version": policy_version, "reason_code": reason_code,
+            "retrieval_bundle": retrieval_bundle, "facts_snapshot": facts_snapshot,
+            "status": "PENDING", "created_at": _now(), "updated_at": _now(),
+        })
         return tid
 
     async def reclaim_expired_commands(self, *, max_attempts: int = 3):

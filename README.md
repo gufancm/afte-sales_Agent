@@ -3,6 +3,7 @@
 对应设计文档：`docs/ecommerce-aftersale-agent-lld-v3.5.md`（LLD v3.5）。
 本仓库是该 LLD 的**可运行、可 Docker 部署**的实现：意图识别、确定性 Policy Engine、RAG 证据闭包、
 LangGraph 工作流、Saga/Outbox + Worker、MCP 端口与 Mock、API/SSE、数据库迁移与测试。
+V4.0 增量重构已内置：`WORKFLOW_V4_ENABLED=true` 时启用九节点图，V3 图默认保留用于旧工单与回滚。
 
 > 免责：**实施基线**，非生产验证系统。接入真实资金系统前必须完成迁移执行、故障恢复与财务对账验证；
 > 默认 `FINANCE_REAL_WRITES_ENABLED=false`（外部资金写禁用）。
@@ -49,6 +50,9 @@ flowchart TB
 - **确定性优先**：政策裁决、风控、执行前复核均为确定性服务；LLM 只负责理解与措辞，绝不替代资金/权限判断。
 - **Fail-Closed**：缺事实、缺规则、缺审批一律转人工，绝不默认放行；真实资金写默认关闭。
 - **12 节点 LangGraph + 图外 Saga/Outbox Worker**：HITL `interrupt()` 挂起与恢复、命令优先级、租约回收、对账收敛。
+- **V4 九节点工作流**：`intent_guardrail → context_aggregator → policy_retrieval → llm_decision →
+  decision_guard → hitl_review → safe_execution → result_verifier → response_composer`；LLM 仅生成候选方案，
+  DecisionGuard 独立完成验证与风控，SafeExecution 合并准备/复核/幂等提交，政策不确定转后台核实任务。
 - **MCP 标准协议**：官方 SDK 的 stdio Server（JSON-RPC 2.0），15 个售后工具（10 只读 / 5 写）带 `readOnlyHint` 与必填幂等键，
   任意 MCP Host 可直接接入；业务逻辑仍由既有网关/处理器单点实现，不重复实现规则。
 - **可恢复 HITL**：Postgres Checkpointer 持久化 `interrupt()` 暂停点（`CHECKPOINT_BACKEND=memory|postgres`），
@@ -73,13 +77,13 @@ aftersale-agent/
     llm/adapter.py           # OpenAI 兼容适配器（chat_completions/responses，§17.2），prompts/
     policy/                  # dsl engine repository seed db_repository（确定性政策，§4）
     rag/                     # 检索（BM25 词法+pgvector 向量+RRF+BGE Reranker+查询变换/证据闭包，§5）
-    graph/                   # state deps nodes（12 核心节点） build（含 checkpointer，§7）
+    graph/                   # state deps nodes（V3 12 节点 / V4 9 节点） build v4（含 checkpointer）
     memory/                  # 记忆系统（短期跨轮 / 情景 / 语义；非权威，仅注入理解/措辞）
     saga/                    # commands dispatcher（唯一外部写执行者，§9/§18.10）
     mcp/                     # ports client mocks/{inmemory,server}（OMS/TMS/Finance）
     db/                      # engine（tenant_transaction/system_transaction） persistence memory
     api/                     # security（JWT/租户上下文） routes（REST/SSE/审批恢复）
-  migrations/sql/            # 0001..0020（…→父子分块→HNSW→Saga 计划绑定→工具审计→裁决 trace→BM25→记忆系统）
+  migrations/sql/            # 0001..0023（…→记忆系统→V4 政策核实任务）
   scripts/
     migrate.py               # 幂等迁移（schema_migrations 记录 + 旧库 bootstrap）
     run_worker.py            # Saga Worker：命令派发 + 对账回查（§18.10/§19.1.6）

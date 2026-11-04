@@ -540,6 +540,23 @@ class SqlPersistence:
                 {"ten": tenant_id, "tk": ticket_id, "r": reason})).first()
         return str(existing[0]) if existing else tid
 
+    async def ensure_policy_review_task(self, *, tenant_id: str, ticket_id: str, thread_id: str | None,
+                                        policy_version: str | None, reason_code: str,
+                                        retrieval_bundle: dict, facts_snapshot: dict) -> str:
+        """幂等创建 V4 后台政策核实任务；与 HITL 风险审批分离。"""
+        tid = _uuid()
+        async with tenant_transaction(self.sf, tenant_id) as s:
+            row = (await s.execute(text(
+                "INSERT INTO policy_review_tasks(task_id,tenant_id,ticket_id,thread_id,workflow_version,"
+                "policy_version,reason_code,retrieval_bundle,facts_snapshot,status) "
+                "VALUES(:tid,:ten,:tk,:thr,'v4',:pv,:rc,CAST(:rb AS jsonb),CAST(:fs AS jsonb),'PENDING') "
+                "ON CONFLICT (tenant_id,ticket_id,reason_code,policy_version) DO UPDATE "
+                "SET updated_at=now() RETURNING task_id::text"),
+                {"tid": tid, "ten": tenant_id, "tk": _uuid_or_none(ticket_id), "thr": thread_id,
+                 "pv": policy_version, "rc": reason_code, "rb": _json(retrieval_bundle),
+                 "fs": _json(facts_snapshot)})).first()
+        return str(row[0]) if row else tid
+
 
     async def reclaim_expired_commands(self, *, max_attempts: int = 3) -> list[dict]:
         """回收租约过期的 CLAIMED 命令：置 UNKNOWN 并建对账任务（绝不盲重试，§9.8/§18.10）。

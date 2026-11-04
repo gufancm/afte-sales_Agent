@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     log_level: str = "INFO"
+    workflow_v4_enabled: bool = False
 
     # ---- 数据库 ----
     database_url: str = "postgresql+asyncpg://agent_user:change-me@localhost:5432/aftersale"

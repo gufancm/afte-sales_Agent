@@ -237,6 +237,44 @@ class RiskOutcome(StrictOutput):
     reason_codes: list[str] = Field(default_factory=list)
 
 
+class DecisionProposal(StrictOutput):
+    """V4 LLM 候选输出：ALLOW 仅代表候选方案，不代表执行授权。"""
+
+    decision: Literal["ALLOW", "DENY", "NEED_INFO", "MANUAL"]
+    action: str | None = None
+    order_id: str | None = None
+    amount_minor: int | None = Field(default=None, ge=0)
+    reason_code: str | None = None
+    evidence_ids: list[str] = Field(default_factory=list)
+    explanation: str | None = None
+    clarification_question: str | None = None
+
+
+class ValidatedDecision(StrictOutput):
+    """服务端验证结果；validated_* 只能由确定性逻辑写入。"""
+
+    status: Literal["VERIFIED", "REJECTED", "NEED_INFO", "MANUAL"]
+    validated_actions: list[str] = Field(default_factory=list)
+    validated_amount_minor: int | None = Field(default=None, ge=0)
+    policy_version: str | None = None
+    facts_version: str | None = None
+    validated_evidence_ids: list[str] = Field(default_factory=list)
+    reason_codes: list[str] = Field(default_factory=list)
+
+
+class RiskAuthorization(StrictOutput):
+    authorization: Literal["AUTO", "REVIEW", "DENY"]
+    risk_rule_version: str = "risk-rules-v1"
+    reason_codes: list[str] = Field(default_factory=list)
+
+
+class PublicResponseContext(StrictOutput):
+    ticket_id: str
+    public_status: Literal["NEED_INFO", "PROCESSING", "COMPLETED", "REJECTED"]
+    verified_facts: dict = Field(default_factory=dict)
+    public_reason_codes: list[str] = Field(default_factory=list)
+
+
 def validate_plan_against_intent(plan: ActionPlan, intent: Intent) -> None:
     """计划级校验的第二处（§2.4）：动作必须落在意图白名单内。"""
     if not plan.allowed_for(intent):
