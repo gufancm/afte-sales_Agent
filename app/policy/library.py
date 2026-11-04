@@ -43,6 +43,10 @@ def library_version() -> str:
     return _raw().get("version", "2026.10")
 
 
+def library_tenant() -> str:
+    return str(_raw().get("tenant") or "tenant_demo")
+
+
 def documents() -> list[dict[str, Any]]:
     docs = list(_raw().get("documents", []))
     if docs:
@@ -69,6 +73,7 @@ def load_rules() -> list[Rule]:
             allowed_actions=tuple(r.get("allowed_actions") or ()),
             stage=(int(r["stage"]) if r.get("stage") is not None else None),
             scope=dict(r.get("scope", {})), status=r.get("status", "PUBLISHED"),
+            tenant_scope=str(_raw().get("tenant") or "tenant_demo"),
             effective_from=r.get("effective_from"), effective_to=r.get("effective_to"),
         ))
     return out

@@ -10,6 +10,8 @@ from app.bootstrap import build_deps  # noqa: E402
 from app.config import Settings  # noqa: E402
 from app.graph.build import build_graph  # noqa: E402
 from app.graph.v4 import decision_guard, policy_retrieval, safe_execution  # noqa: E402
+from app.graph.v4 import _matched_policy_rules  # noqa: E402
+from app.policy.library import load_rules  # noqa: E402
 
 
 def _deps(*, v4: bool = True):
@@ -19,7 +21,7 @@ def _deps(*, v4: bool = True):
 
 
 def _state(**over):
-    state = {"tenant_id": "t1", "user_id": "u_demo", "ticket_id": "tk1", "thread_id": "th1",
+    state = {"tenant_id": "tenant_demo", "user_id": "u_demo", "ticket_id": "tk1", "thread_id": "th1",
              "run_id": "r1", "trace_id": "tr1", "messages": [{"role": "user", "content": "我要退款"}],
              "slots": {"order_id": "o_1001", "quantity": 1},
              "intent_result": {"intent": "REFUND_ONLY"},
@@ -31,13 +33,23 @@ def _state(**over):
              "facts_version": "f1",
              "retrieval_bundle": {"status": "OK", "policy_version": "p1",
                                   "items": [
-                                      {"clause_id": "c1", "policy_version": "p1", "is_exception": False,
-                                       "supports_actions": ["REQUEST_REFUND_ONLY", "REQUEST_RETURN_REFUND"],
+                                      {"clause_id": "CL-JD590903538377428992-S3#2",
+                                       "policy_version": "2026.10-jd", "is_exception": False,
+                                       "supports_actions": ["REQUEST_REFUND_ONLY"],
                                        "policy_cap_minor": 9900},
-                                  ]},
+                                      {"clause_id": "CL-JD590903538377428992-S3",
+                                       "policy_version": "2026.10-jd", "is_exception": False,
+                                       "supports_actions": ["REQUEST_REFUND_ONLY"],
+                                       "policy_cap_minor": 9900},
+                                  ],
+                                  "as_of": "2026-11-04T00:00:00Z",
+                                  "exception_metadata_status": "NO_EXCEPTIONS",
+                                  "required_exception_ids": [],
+                                  "resolved_exception_ids": []},
              "decision_proposal": {"decision": "ALLOW", "action": "REQUEST_REFUND_ONLY",
                                    "order_id": "o_1001", "amount_minor": 5000,
-                                   "reason_code": "QUALIFIED", "evidence_ids": ["c1"],
+                "reason_code": "UNSHIPPED_CANCEL_REFUND",
+                "evidence_ids": ["CL-JD590903538377428992-S3#2", "CL-JD590903538377428992-S3"],
                                    "missing_fields": []}}
     state.update(over)
     return state
@@ -46,7 +58,8 @@ def _state(**over):
 def _proposal(**over):
     proposal = {"decision": "ALLOW", "action": "REQUEST_REFUND_ONLY", "order_id": "o_1001",
                 "amount_minor": 5000, "reason_code": "QUALIFIED",
-                "evidence_ids": ["c1"], "missing_fields": []}
+                "evidence_ids": ["CL-JD590903538377428992-S3#2", "CL-JD590903538377428992-S3"],
+                "missing_fields": []}
     proposal.update(over)
     return proposal
 
@@ -133,7 +146,7 @@ async def test_need_info_and_rejected_do_not_create_policy_review():
 
 
 @pytest.mark.asyncio
-async def test_policy_without_exceptions_is_not_blocked():
+async def test_policy_without_exceptions_is_not_blocked(cap_rule):
     deps = _deps()
     state = _state()
     state["retrieval_bundle"]["exception_metadata_status"] = "NO_EXCEPTIONS"
@@ -141,15 +154,81 @@ async def test_policy_without_exceptions_is_not_blocked():
     state["retrieval_bundle"]["resolved_exception_ids"] = []
     out = await decision_guard(state, deps)
     assert out["validated_decision"]["validation_status"] == "VERIFIED"
-    assert out["validated_decision"]["policy_cap_minor"] == 9900
+    assert out["validated_decision"]["matched_scope_ids"] == ["TEST-CAP-RULE"]
     assert out["validated_decision"]["auto_approval_cap_minor"] == 100000
 
 
+@pytest.fixture
+def cap_rule(monkeypatch):
+    rules = [rule for rule in load_rules()
+             if rule.rule_id == "R-JD-CANCEL-UNSHIPPED-001"]
+    patched = rules[0].__class__(
+        **{**rules[0].__dict__, "amount_cap_minor": 9900, "rule_id": "TEST-CAP-RULE"})
+    monkeypatch.setattr("app.graph.v4.load_rules", lambda: [patched])
+    return patched
+
+
+@pytest.fixture
+def return_only_rule(monkeypatch):
+    rules = [rule for rule in load_rules()
+             if rule.rule_id == "R-JD-CANCEL-UNSHIPPED-001"]
+    patched = rules[0].__class__(
+        **{**rules[0].__dict__, "allowed_actions": ("REQUEST_RETURN_REFUND",),
+           "rule_id": "TEST-RETURN-RULE"})
+    monkeypatch.setattr("app.graph.v4.load_rules", lambda: [patched])
+    return patched
+
+
+@pytest.fixture
+def low_cap_rule(monkeypatch):
+    rules = [rule for rule in load_rules()
+             if rule.rule_id == "R-JD-CANCEL-UNSHIPPED-001"]
+    patched = rules[0].__class__(
+        **{**rules[0].__dict__, "amount_cap_minor": 1000,
+           "rule_id": "TEST-LOW-CAP-RULE"})
+    monkeypatch.setattr("app.graph.v4.load_rules", lambda: [patched])
+    return patched
+
+
+def test_policy_rule_scope_requires_tenant_action_and_facts():
+    state = _state()
+    rule = next(rule for rule in load_rules() if rule.rule_id == "R-JD-CANCEL-UNSHIPPED-001")
+    assert _matched_policy_rules(state, state["decision_proposal"], state["retrieval_bundle"]) == [rule]
+
+    wrong_tenant = dict(state, tenant_id="tenant_other")
+    assert _matched_policy_rules(wrong_tenant, state["decision_proposal"], state["retrieval_bundle"]) == []
+
+    wrong_action = {**state, "decision_proposal": {**state["decision_proposal"],
+                                                    "action": "REQUEST_RETURN_REFUND"}}
+    assert _matched_policy_rules(wrong_action, wrong_action["decision_proposal"], state["retrieval_bundle"]) == []
+
+    expired = {**state, "retrieval_bundle": {**state["retrieval_bundle"],
+                                              "as_of": "2025-12-31T23:59:59Z"}}
+    assert _matched_policy_rules(expired, state["decision_proposal"], expired["retrieval_bundle"]) == []
+
+    stale = dict(state)
+    stale["order_snapshot"] = {**state["order_snapshot"], "status": "DELIVERED"}
+    assert _matched_policy_rules(stale, state["decision_proposal"], state["retrieval_bundle"]) == []
+
+    state["slots"]["reason_code"] = "NO_LONGER_NEEDED"
+    state["order_snapshot"]["status"] = "DELIVERED"
+    state["order_snapshot"]["category"] = "FRESH"
+    state["order_snapshot"]["delivered_at"] = "2026-11-01T00:00:00Z"
+    state["claim_at"] = "2026-11-02T00:00:00Z"
+    state["retrieval_bundle"]["items"] = [
+        {"clause_id": "CL-JD4268-A3", "policy_version": "2026.10-jd", "is_exception": False},
+        {"clause_id": "CL-JD4268-S4", "policy_version": "2026.10-jd", "is_exception": False},
+    ]
+    state["decision_proposal"] = {**state["decision_proposal"], "action": "REQUEST_RETURN_REFUND",
+                                  "evidence_ids": ["CL-JD4268-A3", "CL-JD4268-S4"]}
+    assert [matched.rule_id for matched in _matched_policy_rules(
+        state, state["decision_proposal"], state["retrieval_bundle"])] == ["R-JD-NR-WINDOW-OK-001"]
+
+
 @pytest.mark.asyncio
-async def test_policy_supports_return_but_not_refund_only():
+async def test_policy_supports_return_but_not_refund_only(return_only_rule):
     deps = _deps()
     state = _state(decision_proposal=_proposal(action="REQUEST_REFUND_ONLY"))
-    state["retrieval_bundle"]["items"][0]["supports_actions"] = ["REQUEST_RETURN_REFUND"]
     state["retrieval_bundle"]["exception_metadata_status"] = "NO_EXCEPTIONS"
     state["retrieval_bundle"]["required_exception_ids"] = []
     state["retrieval_bundle"]["resolved_exception_ids"] = []
@@ -160,11 +239,10 @@ async def test_policy_supports_return_but_not_refund_only():
 
 
 @pytest.mark.asyncio
-async def test_policy_cap_lower_than_balance_blocks():
+async def test_policy_cap_lower_than_balance_blocks(low_cap_rule):
     deps = _deps()
     state = _state(decision_proposal=_proposal(amount_minor=5000))
     state["finance_snapshot"]["refundable_balance_minor"] = 29900
-    state["retrieval_bundle"]["items"][0]["policy_cap_minor"] = 1000
     state["retrieval_bundle"]["exception_metadata_status"] = "NO_EXCEPTIONS"
     state["retrieval_bundle"]["required_exception_ids"] = []
     state["retrieval_bundle"]["resolved_exception_ids"] = []

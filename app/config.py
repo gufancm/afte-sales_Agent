@@ -95,6 +95,7 @@ class Settings(BaseSettings):
     risk_max_refund_count_30d: int = 5
     risk_max_refund_amount_30d_minor: int = 500000
     risk_blacklist_deny: bool = True
+    risk_auto_approval_cap_minor: int = 100000
 
     # ---- RAG ----
     rag_bm25_top_k: int = 20

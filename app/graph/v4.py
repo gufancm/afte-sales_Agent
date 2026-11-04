@@ -12,6 +12,8 @@ from app.graph import nodes
 from app.graph.deps import Deps
 from app.graph.retry import build_node_retry_policy
 from app.graph.state import AgentState
+from app.domain.enums import normalize_category
+from app.policy.facts import claim_time_facts, enrich_facts, parse_ts
 from app.policy.library import load_rules
 
 RESPOND = "response_composer"
@@ -29,8 +31,62 @@ def _policy_metadata() -> list[dict]:
             "policy_cap_minor": rule.amount_cap_minor,
             "scope": rule.scope,
             "decision": rule.decision,
+            "rule_id": rule.rule_id,
+            "status": rule.status,
+            "effective_from": rule.effective_from,
+            "effective_to": rule.effective_to,
         })
     return rules
+
+
+def _facts_snapshot(state: dict) -> dict:
+    order = dict(state.get("order_snapshot") or {})
+    order["category"] = normalize_category(order.get("category"))
+    claim_at = state.get("claim_at") or _now()
+    return enrich_facts({
+        "order": order,
+        "logistics": state.get("logistics_snapshot") or {},
+        "finance": {** (state.get("finance_snapshot") or {}),
+                    "requested_amount_minor": (state.get("decision_proposal") or {}).get("amount_minor")},
+        "claim": {"reason_code": (state.get("slots") or {}).get("reason_code"),
+                  "quantity": (state.get("slots") or {}).get("quantity"),
+                  **claim_time_facts(delivered_at=order.get("delivered_at"), claim_at=claim_at)},
+        "intent": ((state.get("intent_result") or {}).get("intent") or "UNKNOWN"),
+    })
+
+
+def _rule_effective(rule, as_of: str) -> bool:
+    now = parse_ts(as_of)
+    if now is None:
+        return False
+    if rule.status != "PUBLISHED":
+        return False
+    start, end = parse_ts(rule.effective_from), parse_ts(rule.effective_to)
+    return not ((start and now < start) or (end and now > end))
+
+
+def _matched_policy_rules(state: dict, proposal: dict, bundle: dict) -> list:
+    facts = _facts_snapshot(state)
+    as_of = bundle.get("as_of") or state.get("claim_at") or _now()
+    cited = set(proposal.get("evidence_ids") or [])
+    available = {item.get("clause_id") for item in bundle.get("items", [])}
+    out = []
+    for rule in load_rules():
+        if not _rule_effective(rule, as_of):
+            continue
+        required = set(rule.required_clause_ids)
+        if rule.decision != "ALLOW" or not required.intersection(cited):
+            continue
+        if rule.tenant_scope != state.get("tenant_id"):
+            continue
+        if not set(rule.allowed_actions).intersection({proposal.get("action")}):
+            continue
+        if not rule.matches(facts):
+            continue
+        if not required.issubset(available):
+            continue
+        out.append(rule)
+    return out
 
 
 def _now() -> str:
@@ -61,30 +117,35 @@ async def policy_retrieval(state, deps: Deps) -> dict:
     status = ("INSUFFICIENT" if not fetched else
               "CONFLICT" if orphan_exceptions else
               "STALE" if len(versions) > 1 else "OK")
-    metadata = _policy_metadata()
     items = [{
         "clause_id": chunk.clause_id, "document_id": chunk.doc_id,
         "policy_version": chunk.version, "content": chunk.text,
         "source_ref": chunk.doc_id, "clause_group_id": chunk.clause_group_id,
         "is_exception": chunk.is_exception,
     } for chunk in fetched.values()]
+    metadata = _policy_metadata()
+    required_exception_ids = []
+    resolved_exception_ids = []
     for item in items:
         item["supports_actions"] = sorted({
             action for rule in metadata
-            if item["clause_id"] in rule["required_clause_ids"] or item["clause_id"] in rule["required_clause_ids"]
+            if item["clause_id"] in rule["required_clause_ids"]
             for action in rule["allowed_actions"]})
         caps = [rule["policy_cap_minor"] for rule in metadata
                 if item["clause_id"] in rule["required_clause_ids"]
                 and rule["policy_cap_minor"] is not None]
         item["policy_cap_minor"] = min(caps) if caps else None
-        item["required_exception_ids"] = sorted({
-            clause_id for rule in metadata
-            if item["clause_id"] in rule["required_clause_ids"]
-            for clause_id in rule["required_clause_ids"]})
-    required_exception_ids = sorted({cid for item in items for cid in item["required_exception_ids"]
-                                     if cid != item["clause_id"]})
-    resolved_exception_ids = sorted({item["clause_id"] for item in items if item["is_exception"]})
-    exception_status = ("NO_EXCEPTIONS" if not required_exception_ids else
+        if not item["clause_group_id"]:
+            continue
+        required = sorted({chunk.clause_id for chunk in fetched.values()
+                           if chunk.clause_group_id == item["clause_group_id"]})
+        exceptions = sorted({chunk.clause_id for chunk in fetched.values()
+                             if chunk.clause_group_id == item["clause_group_id"] and chunk.is_exception})
+        required_exception_ids.extend(required)
+        resolved_exception_ids.extend(exceptions)
+    required_exception_ids = sorted(set(required_exception_ids))
+    resolved_exception_ids = sorted(set(resolved_exception_ids))
+    exception_status = ("COMPLETE" if not required_exception_ids else
                         "COMPLETE" if set(required_exception_ids) <= set(resolved_exception_ids) else
                         "PARTIAL")
     bundle = {"status": status, "items": items,
@@ -180,6 +241,7 @@ async def decision_guard(state, deps: Deps) -> dict:
     slots = state.get("slots") or {}
     evidence_ids = {item.get("clause_id") for item in bundle.get("items", [])}
     evidence_items = {item.get("clause_id"): item for item in bundle.get("items", [])}
+    matched_rules = _matched_policy_rules(state, proposal, bundle)
 
     if proposal.get("decision") == "NEED_INFO":
         return _validation_result(state, "NEED_INFO", [], None, ["NEED_INFO"])
@@ -203,18 +265,18 @@ async def decision_guard(state, deps: Deps) -> dict:
         reasons.append("EVIDENCE_NOT_FOUND")
     if not proposal.get("evidence_ids"):
         reasons.append("EVIDENCE_INCOMPLETE")
-    supports = sorted({supported for eid in proposal.get("evidence_ids", [])
-                       for supported in evidence_items.get(eid, {}).get("supports_actions", [])})
-    if action and supports and action not in supports:
+    matched_actions = sorted({supported for rule in matched_rules
+                              for supported in rule.allowed_actions})
+    if action and not matched_actions and not [eid for eid in proposal.get("evidence_ids", [])
+                                                if eid in evidence_ids]:
+        reasons.append("EVIDENCE_NOT_FOUND")
+    elif action and not matched_actions:
         reasons.append("POLICY_ACTION_NOT_SUPPORTED")
-    if action in supports:
-        reasons.append("SUPPORTED_POLICY_ACTION")
-    if action in supports:
-        exception_status = bundle.get("exception_metadata_status")
-        if exception_status not in ("NO_EXCEPTIONS", "COMPLETE"):
-            reasons.append("EXCEPTION_METADATA_UNKNOWN")
-    if "SUPPORTED_POLICY_ACTION" in reasons:
-        reasons.remove("SUPPORTED_POLICY_ACTION")
+    if action and matched_actions and action not in matched_actions:
+        reasons.append("POLICY_ACTION_NOT_SUPPORTED")
+    exception_status = bundle.get("exception_metadata_status")
+    if exception_status not in ("NO_EXCEPTIONS", "COMPLETE"):
+        reasons.append("EXCEPTION_METADATA_UNKNOWN")
     if proposal.get("amount_minor") is not None:
         balance = finance.get("refundable_balance_minor")
         if balance is None or not (0 < proposal["amount_minor"] <= int(balance)):
@@ -240,9 +302,8 @@ async def decision_guard(state, deps: Deps) -> dict:
 
     validated = _validation_result(state, "VERIFIED", [action], proposal.get("amount_minor"), [])
     balance = int(finance.get("refundable_balance_minor") or 0)
-    policy_caps = [int(evidence_items[eid].get("policy_cap_minor") or 0)
-                   for eid in proposal.get("evidence_ids", [])
-                   if evidence_items[eid].get("policy_cap_minor") is not None]
+    policy_caps = [int(rule.amount_cap_minor) for rule in matched_rules
+                   if rule.amount_cap_minor is not None]
     policy_cap = min(policy_caps) if policy_caps else None
     if policy_cap is None:
         return await _manual_review(state, deps, ["POLICY_CAP_UNKNOWN"])
@@ -253,11 +314,14 @@ async def decision_guard(state, deps: Deps) -> dict:
     validated["validated_decision"].update({
         "amount_cap_minor": policy_cap, "refundable_balance_minor": balance,
         "policy_cap_minor": policy_cap, "auto_approval_cap_minor": auto_cap,
-        "amount_validation_status": amount_status})
+        "amount_validation_status": amount_status,
+        "matched_scope_ids": [rule.rule_id for rule in matched_rules],
+        "validated_evidence_ids": proposal.get("evidence_ids") or []})
     decision_id = await deps.persistence.record_policy_decision(
         policy_decision_id=None, tenant_id=state["tenant_id"], ticket_id=state["ticket_id"],
         decision="ALLOW", reason_code=proposal.get("reason_code") or "V4_VALIDATED",
-        rule_ids=["V4_VALIDATED"], required_clause_ids=proposal.get("evidence_ids") or [],
+        rule_ids=[rule.rule_id for rule in matched_rules] or ["V4_VALIDATED"],
+        required_clause_ids=proposal.get("evidence_ids") or [],
         amount_cap_minor=policy_cap, policy_version=(state.get("retrieval_bundle") or {}).get("policy_version"),
         time_basis="claim_at", as_of=state.get("claim_at"),
         scope={"source": "v4_decision_guard"}, trace={"source": "V4", "validation": validated})

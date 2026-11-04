@@ -100,6 +100,7 @@ class Rule:
     effective_from: str | None = None   # ISO8601
     effective_to: str | None = None
     status: Literal["PUBLISHED", "SUPERSEDED", "RETIRED"] = "PUBLISHED"
+    tenant_scope: str = "tenant_demo"
     stage: int | None = None            # None -> 按 decision 取默认阶段
     cap_type: CapType = "AUTO_EXEC_THRESHOLD"
     # 该规则明确授权的**具体业务动作**（动作级授权，不等于“政策允许”）。
