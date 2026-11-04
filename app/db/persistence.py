@@ -48,8 +48,8 @@ class SqlPersistence:
         tid = _uuid()
         async with tenant_transaction(self.sf, tenant_id) as s:
             await s.execute(text(
-                "INSERT INTO aftersale_tickets(ticket_id,tenant_id,user_id,order_id,intent,status,version) "
-                "VALUES(:tid,:ten,:uid,:oid,:intent,:st,0,:wf)"),
+                "INSERT INTO aftersale_tickets(ticket_id,tenant_id,user_id,order_id,intent,status,workflow_version) "
+                "VALUES(:tid,:ten,:uid,:oid,:intent,:st,:wf)"),
                 {"tid": tid, "ten": tenant_id, "uid": user_id, "oid": order_id, "intent": intent,
                  "st": status, "wf": workflow_version})
         M.TICKETS.inc()
