@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import pytest
+from functools import partial
+from langgraph.graph import END, START, StateGraph
 
 pytest.importorskip("langgraph")
 
 from app.bootstrap import build_deps  # noqa: E402
 from app.config import Settings  # noqa: E402
 from app.graph.build import build_graph  # noqa: E402
-from app.graph.v4 import decision_guard, policy_retrieval, safe_execution  # noqa: E402
+from app.graph.state import AgentState  # noqa: E402
+from app.graph.v4 import (decision_guard, policy_retrieval, route_after_guard,  # noqa: E402
+                          safe_execution)
 from app.graph.v4 import _matched_policy_rules  # noqa: E402
 from app.policy.library import load_rules  # noqa: E402
 
@@ -72,6 +76,28 @@ def test_v4_graph_has_nine_nodes_and_keeps_v3_default():
                      "response_composer"}
     v3 = build_graph(_deps(v4=False)).get_graph().nodes
     assert "decision_guard" not in {n for n in v3 if not n.startswith("__")}
+
+
+@pytest.mark.asyncio
+async def test_v4_state_schema_preserves_guard_and_execution_outputs(cap_rule):
+    deps = _deps()
+    state = _state()
+    graph = StateGraph(AgentState)
+    graph.add_node("decision_guard", partial(decision_guard, deps=deps))
+    graph.add_node("safe_execution", partial(safe_execution, deps=deps))
+    graph.add_edge(START, "decision_guard")
+    graph.add_conditional_edges("decision_guard", route_after_guard,
+                                {"execute": "safe_execution", "hitl": "safe_execution", "respond": END})
+    graph.add_edge("safe_execution", END)
+    result = await graph.compile().ainvoke(state)
+    assert result["validated_decision"]["validation_status"] == "VERIFIED"
+    assert result["validated_decision"]["decision_id"]
+    assert result["risk_result"]["authorization"] in ("AUTO", "REVIEW")
+    assert result["submit_status"] == "BLOCKED"
+    assert result["error_code"] == "V4_AUTHORIZATION_REQUIRED"
+    assert AgentState.__annotations__["validated_decision"]
+    assert AgentState.__annotations__["risk_result"]
+    assert AgentState.__annotations__["submit_status"]
 
 
 @pytest.mark.asyncio

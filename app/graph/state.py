@@ -61,6 +61,7 @@ class AgentState(TypedDict):
 
     approval_id: NotRequired[str]
     approval_status: NotRequired[str]
+    submit_status: NotRequired[str]
     command_ids: NotRequired[list[str]]
     command_results: NotRequired[list[dict]]
 
