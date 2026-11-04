@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from app.observability import metrics as M
@@ -285,8 +285,25 @@ class InMemoryPersistence:
         return tid
 
     async def reclaim_expired_commands(self, *, max_attempts: int = 3):
-        # 内存实现无真实租约时钟语义：返回空（回收逻辑由 SqlPersistence 覆盖）
-        return []
+        now = _now()
+        reclaimed = []
+        for command in self.commands:
+            if command.get("status") not in ("CLAIMED", "IN_FLIGHT"):
+                continue
+            lease_until = command.get("lease_until")
+            if not lease_until or str(lease_until) >= now:
+                continue
+            if int(command.get("attempt_count", 0)) >= int(max_attempts):
+                command["status"] = "UNKNOWN"
+            else:
+                command["status"] = "PREPARED"
+            command["lease_until"] = None
+            reclaimed.append({
+                "command_id": command["command_id"],
+                "tenant_id": command["tenant_id"],
+                "ticket_id": command.get("ticket_id"),
+            })
+        return reclaimed
 
     async def escalate_expired_approvals(self):
         now = _now()
@@ -305,6 +322,7 @@ class InMemoryPersistence:
         for c in ready:
             c["status"] = "CLAIMED"
             c["attempt_count"] = c.get("attempt_count", 0) + 1
+            c["lease_until"] = (datetime.now(timezone.utc) + timedelta(seconds=60)).isoformat()
             return dict(c)
         return None
 
