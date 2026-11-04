@@ -84,6 +84,9 @@ def _evaluate_refund(state: dict, params: dict | None = None) -> RiskOutcome:
     if validated:
         cap = validated.get("amount_cap_minor")
         amount = validated.get("validated_amount_minor")
+        auto_cap = validated.get("auto_approval_cap_minor")
+        if amount is not None and auto_cap is not None and amount > auto_cap:
+            return _review("AUTO_APPROVAL_CAP_EXCEEDED")
     else:
         cap = ((state.get("policy_decision") or {}).get("amount_cap") or {}).get("cap_minor")
         amount = state.get("quote_amount_minor")

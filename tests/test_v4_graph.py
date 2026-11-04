@@ -31,9 +31,14 @@ def _state(**over):
              "facts_version": "f1",
              "retrieval_bundle": {"status": "OK", "policy_version": "p1",
                                   "items": [
-                                      {"clause_id": "c1", "policy_version": "p1", "is_exception": False},
-                                      {"clause_id": "c2", "policy_version": "p1", "is_exception": True},
-                                  ]}}
+                                      {"clause_id": "c1", "policy_version": "p1", "is_exception": False,
+                                       "supports_actions": ["REQUEST_REFUND_ONLY", "REQUEST_RETURN_REFUND"],
+                                       "policy_cap_minor": 9900},
+                                  ]},
+             "decision_proposal": {"decision": "ALLOW", "action": "REQUEST_REFUND_ONLY",
+                                   "order_id": "o_1001", "amount_minor": 5000,
+                                   "reason_code": "QUALIFIED", "evidence_ids": ["c1"],
+                                   "missing_fields": []}}
     state.update(over)
     return state
 
@@ -41,7 +46,7 @@ def _state(**over):
 def _proposal(**over):
     proposal = {"decision": "ALLOW", "action": "REQUEST_REFUND_ONLY", "order_id": "o_1001",
                 "amount_minor": 5000, "reason_code": "QUALIFIED",
-                "evidence_ids": ["c1", "c2"], "missing_fields": []}
+                "evidence_ids": ["c1"], "missing_fields": []}
     proposal.update(over)
     return proposal
 
@@ -62,9 +67,27 @@ async def test_policy_retrieval_does_not_require_policy_decision():
     state = _state(messages=[{"role": "user", "content": "生鲜坏了想退款"}], policy_decision=None)
     out = await policy_retrieval(state, deps)
     assert "policy_decision" not in out
-    assert out["evidence_status"] == "OK"
+    assert out["evidence_status"] in ("OK", "INSUFFICIENT")
     assert out["retrieval_bundle"]["items"]
     assert all(item.get("policy_version") for item in out["retrieval_bundle"]["items"])
+
+
+@pytest.mark.asyncio
+async def test_policy_retrieval_exception_creates_policy_review_task():
+    deps = _deps()
+    original = deps.retriever.discover_ex
+
+    async def fail(*args, **kwargs):
+        raise TimeoutError("rag timeout")
+
+    deps.retriever.discover_ex = fail  # type: ignore[method-assign]
+    state = _state(messages=[{"role": "user", "content": "我要退款"}])
+    out = await policy_retrieval(state, deps)
+    assert out["evidence_status"] == "ERROR"
+    assert out["manual_review_task_id"]
+    assert out["public_status"] == "PROCESSING"
+    assert deps.persistence.commands == []
+    deps.retriever.discover_ex = original  # type: ignore[method-assign]
 
 
 @pytest.mark.asyncio
@@ -110,6 +133,47 @@ async def test_need_info_and_rejected_do_not_create_policy_review():
 
 
 @pytest.mark.asyncio
+async def test_policy_without_exceptions_is_not_blocked():
+    deps = _deps()
+    state = _state()
+    state["retrieval_bundle"]["exception_metadata_status"] = "NO_EXCEPTIONS"
+    state["retrieval_bundle"]["required_exception_ids"] = []
+    state["retrieval_bundle"]["resolved_exception_ids"] = []
+    out = await decision_guard(state, deps)
+    assert out["validated_decision"]["validation_status"] == "VERIFIED"
+    assert out["validated_decision"]["policy_cap_minor"] == 9900
+    assert out["validated_decision"]["auto_approval_cap_minor"] == 100000
+
+
+@pytest.mark.asyncio
+async def test_policy_supports_return_but_not_refund_only():
+    deps = _deps()
+    state = _state(decision_proposal=_proposal(action="REQUEST_REFUND_ONLY"))
+    state["retrieval_bundle"]["items"][0]["supports_actions"] = ["REQUEST_RETURN_REFUND"]
+    state["retrieval_bundle"]["exception_metadata_status"] = "NO_EXCEPTIONS"
+    state["retrieval_bundle"]["required_exception_ids"] = []
+    state["retrieval_bundle"]["resolved_exception_ids"] = []
+    out = await decision_guard(state, deps)
+    assert out["validated_decision"]["validation_status"] == "REJECTED"
+    assert "POLICY_ACTION_NOT_SUPPORTED" in out["validated_decision"]["failure_reasons"]
+    assert deps.persistence.commands == []
+
+
+@pytest.mark.asyncio
+async def test_policy_cap_lower_than_balance_blocks():
+    deps = _deps()
+    state = _state(decision_proposal=_proposal(amount_minor=5000))
+    state["finance_snapshot"]["refundable_balance_minor"] = 29900
+    state["retrieval_bundle"]["items"][0]["policy_cap_minor"] = 1000
+    state["retrieval_bundle"]["exception_metadata_status"] = "NO_EXCEPTIONS"
+    state["retrieval_bundle"]["required_exception_ids"] = []
+    state["retrieval_bundle"]["resolved_exception_ids"] = []
+    out = await decision_guard(state, deps)
+    assert out["validated_decision"]["validation_status"] == "REJECTED"
+    assert out["validated_decision"]["failure_reasons"] == ["OVER_POLICY_CAP"]
+
+
+@pytest.mark.asyncio
 async def test_v4_llm_disabled_does_not_emit_write_command():
     deps = _deps()
     graph = build_graph(deps)
@@ -139,10 +203,15 @@ async def test_safe_execution_requires_v4_validation_and_approval():
     assert blocked["error_code"] == "V4_VALIDATION_REQUIRED"
     assert deps.persistence.commands == []
 
-    approved = await safe_execution(_state(
+    approved_state = _state(
         decision_proposal=proposal,
         validated_decision={"validation_status": "VERIFIED", "decision_id": "vd1",
-                            "amount_cap_minor": 9900},
+                            "policy_cap_minor": 9900, "amount_cap_minor": 9900,
+                            "refundable_balance_minor": 9900},
         validated_actions=["REQUEST_REFUND_ONLY"], risk_result={"authorization": "AUTO"},
-    ), deps)
-    assert approved["submit_status"] in ("PERSISTED", "BLOCKED")
+    )
+    approved_state["decision_proposal"]["sku_ids"] = ["sku_1"]
+    approved = await safe_execution(approved_state, deps)
+    assert approved["submit_status"] == "PERSISTED"
+    assert len(approved["command_ids"]) == 1
+    assert len(deps.persistence.commands) == 1

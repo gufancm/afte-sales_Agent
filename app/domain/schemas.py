@@ -243,6 +243,7 @@ class DecisionProposal(StrictOutput):
     decision: Literal["ALLOW", "DENY", "NEED_INFO", "MANUAL"]
     action: str | None = None
     order_id: str | None = None
+    sku_ids: list[str] = Field(default_factory=list)
     amount_minor: int | None = Field(default=None, ge=0)
     reason_code: str | None = None
     evidence_ids: list[str] = Field(default_factory=list)
@@ -258,6 +259,8 @@ class RetrievalEvidenceItem(StrictOutput):
     source_ref: str
     clause_group_id: str | None = None
     is_exception: bool = False
+    supports_actions: list[str] = Field(default_factory=list)
+    required_exception_ids: list[str] = Field(default_factory=list)
 
 
 class RetrievalBundle(StrictOutput):
@@ -267,6 +270,9 @@ class RetrievalBundle(StrictOutput):
     as_of: str | None = None
     query_trace: list[dict] = Field(default_factory=list)
     retrieval_diagnostics: dict = Field(default_factory=dict)
+    exception_metadata_status: Literal["UNKNOWN", "NO_EXCEPTIONS", "PARTIAL", "COMPLETE"] = "UNKNOWN"
+    required_exception_ids: list[str] = Field(default_factory=list)
+    resolved_exception_ids: list[str] = Field(default_factory=list)
 
 
 class ValidatedDecision(StrictOutput):
@@ -276,6 +282,10 @@ class ValidatedDecision(StrictOutput):
     authorized_actions: list[str] = Field(default_factory=list)
     validated_amount_minor: int | None = Field(default=None, ge=0)
     amount_cap_minor: int | None = Field(default=None, ge=0)
+    refundable_balance_minor: int | None = Field(default=None, ge=0)
+    policy_cap_minor: int | None = Field(default=None, ge=0)
+    auto_approval_cap_minor: int | None = Field(default=None, ge=0)
+    amount_validation_status: Literal["UNKNOWN", "VERIFIED", "REJECTED", "REVIEW"] = "UNKNOWN"
     decision_id: str | None = None
     evidence_ids: list[str] = Field(default_factory=list)
     policy_version: str | None = None
