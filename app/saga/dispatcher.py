@@ -23,7 +23,7 @@ class SagaDispatcher:
                 tenant_id=tenant_id, refund_request_id=command.get("refund_request_id", ""),
                 quote_id=command.get("quote_id") or "", quote_hash=command.get("quote_hash") or "",
                 authorization_ref=command.get("authorization_ref") or "", idempotency_key=idem,
-                payload_hash=command.get("payload_hash") or "",
+                payload_hash=command.get("payload_hash") or "", order_id=command.get("order_id") or "",
             )
         if action == "INTERCEPT_PARCEL":
             return await self.logistics.intercept_parcel(tenant_id=tenant_id,

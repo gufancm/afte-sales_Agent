@@ -344,8 +344,12 @@ class InMemoryPersistence:
                 c["status"] = status
                 c["last_error"] = result.get("error")
         if status == "UNKNOWN":
-            self.reconciliations.append({"task_id": _uuid(), "ticket_id": None, "refund_request_id": None,
-                                         "reason": "UNKNOWN_COMMAND", "status": "PENDING", "attempt_count": 0})
+            command = next((c for c in self.commands if c["command_id"] == command_id), {})
+            self.reconciliations.append({
+                "task_id": _uuid(), "ticket_id": command.get("ticket_id"),
+                "refund_request_id": command.get("refund_request_id"),
+                "command_id": command_id, "reason": "UNKNOWN_COMMAND",
+                "status": "PENDING", "attempt_count": 0})
         M.COMMAND_RESULTS.labels(status=str(status)).inc()
         return status
 
@@ -372,6 +376,16 @@ class InMemoryPersistence:
             if t["task_id"] == task_id:
                 t["status"] = status
         M.RECONCILIATION.labels(status=str(status)).inc()
+        return None
+
+    async def reconcile_command_result(self, *, command_id, result):
+        if result.get("status") not in ("SUCCEEDED", "SETTLED"):
+            return None
+        for command in self.commands:
+            if command["command_id"] == command_id and command.get("status") == "UNKNOWN":
+                command["status"] = "CONFIRMED"
+                command["last_error"] = None
+                return "CONFIRMED"
         return None
 
 

@@ -109,4 +109,5 @@ class LogisticsPort(ReadOnlyLogisticsPort, Protocol):
 
 class FinancePort(ReadOnlyFinancePort, Protocol):
     async def execute_refund(self, *, tenant_id: str, refund_request_id: str, quote_id: str,
-                             quote_hash: str, authorization_ref: str, idempotency_key: str, payload_hash: str) -> dict: ...
+                             quote_hash: str, authorization_ref: str, idempotency_key: str,
+                             payload_hash: str, order_id: str | None = None) -> dict: ...

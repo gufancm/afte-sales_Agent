@@ -198,7 +198,8 @@ class InMemoryFinance:
         return quote
 
     async def execute_refund(self, *, tenant_id: str, refund_request_id: str, quote_id: str, quote_hash: str,
-                             authorization_ref: str, idempotency_key: str, payload_hash: str) -> dict:
+                             authorization_ref: str, idempotency_key: str, payload_hash: str,
+                             order_id: str | None = None) -> dict:
         if idempotency_key in self._idem:
             existing = self._idem[idempotency_key]
             if existing.get("payload_hash") != payload_hash:

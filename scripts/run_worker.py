@@ -73,7 +73,15 @@ async def _reconcile_once(deps) -> bool:
         if rrid:
             res = await deps.finance.get_reconciliation_result(tenant_id=task["tenant_id"], refund_request_id=rrid)
             s = (res or {}).get("status", "UNKNOWN")
-            if s in ("SUCCEEDED", "SETTLED", "FAILED_CONFIRMED"):
+            if s in ("SUCCEEDED", "SETTLED"):
+                if cid and await deps.persistence.reconcile_command_result(command_id=cid, result=res):
+                    with contextlib.suppress(Exception):
+                        await deps.persistence.write_inbox(
+                            tenant_id=task["tenant_id"], source="saga",
+                            dedup_key=cid,
+                            payload={"command_id": cid, "status": "CONFIRMED", "reconciled": True})
+                status = "DONE"
+            elif s == "FAILED_CONFIRMED":
                 status = "DONE"
             else:
                 status = "PENDING" if attempt < max_attempts else "MANUAL_RECONCILE"

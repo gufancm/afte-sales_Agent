@@ -486,9 +486,10 @@ class SqlPersistence:
                 {"st": status, "err": result.get("error"), "cid": command_id})
             if status == "UNKNOWN":
                 await s.execute(text(
-                    "INSERT INTO reconciliation_tasks(task_id,tenant_id,ticket_id,refund_request_id,reason,status,"
-                    "max_attempts,next_run_at,deadline) "
-                    "SELECT :tid,:ten,ticket_id,NULL,'UNKNOWN_COMMAND','PENDING',10, now(), now()+interval '24 hours' "
+                    "INSERT INTO reconciliation_tasks(task_id,tenant_id,ticket_id,refund_request_id,"
+                    "reason,status,command_id,max_attempts,next_run_at,deadline) "
+                    "SELECT :tid,:ten,ticket_id,refund_request_id,'UNKNOWN_COMMAND','PENDING',command_id,"
+                    "10, now(), now()+interval '24 hours' "
                     "FROM saga_commands WHERE command_id=:cid"),
                     {"tid": _uuid(), "ten": tenant_id, "cid": command_id})
         M.COMMAND_RESULTS.labels(status=str(status)).inc()
@@ -519,6 +520,17 @@ class SqlPersistence:
                 "UPDATE reconciliation_tasks SET status=:st, next_run_at=now()+ (:sec || ' seconds')::interval "
                 "WHERE task_id=:tid"), {"st": status, "sec": str(next_run_at_seconds), "tid": task_id})
         M.RECONCILIATION.labels(status=str(status)).inc()
+
+    async def reconcile_command_result(self, *, command_id: str, result: dict) -> str | None:
+        """权威对账终态收敛：只允许 UNKNOWN 命令按 Finance 权威结果转 CONFIRMED。"""
+        if result.get("status") not in ("SUCCEEDED", "SETTLED"):
+            return None
+        async with system_transaction(self.sf) as s:
+            row = await s.execute(text(
+                "UPDATE saga_commands SET status='CONFIRMED', lease_until=NULL, last_error=NULL "
+                "WHERE command_id=:cid AND status='UNKNOWN' RETURNING 1"),
+                {"cid": command_id})
+            return "CONFIRMED" if row.first() else None
 
     # ---------------- 对账 ----------------
     async def create_reconciliation_task(self, *, tenant_id: str, ticket_id: str, refund_request_id: str | None,
